@@ -45,6 +45,7 @@ class ForgeryDataset(Dataset):
             mask_candidates = [
                 os.path.join(mask_dir, stem + '_gt.png'),
                 os.path.join(mask_dir, stem + '.png'),
+                os.path.join(mask_dir, stem + '.jpg'),
             ]
             if any(os.path.exists(m) for m in mask_candidates):
                 all_files.append(f)
@@ -75,6 +76,7 @@ class ForgeryDataset(Dataset):
         mask_candidates = [
             os.path.join(self.mask_dir, stem + '_gt.png'),
             os.path.join(self.mask_dir, stem + '.png'),
+            os.path.join(self.mask_dir, stem + '.jpg'),
         ]
         mask_path = next(m for m in mask_candidates if os.path.exists(m))
 
