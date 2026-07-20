@@ -18,3 +18,14 @@ data_pipeline/processed/*
 !data_pipeline/processed/.gitkeep
 reports/generated/*
 !reports/generated/.gitkeep
+swarm.py
+swarm.log
+task.md
+test.txt
+codex_quota.json
+reviewer_spend.json
+/graphify-out
+/swarm_reports
+feedback.txt
+reports/*.png
+!reports/loss_curve.png
