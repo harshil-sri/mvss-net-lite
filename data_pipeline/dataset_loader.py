@@ -84,9 +84,9 @@ class ForgeryDataset(Dataset):
         # make mask binary
         mask = (mask > 127).astype(np.uint8)
         
-        # get edge map via simple morphological gradient (similar to canny but easier on binary)
-        kernel = np.ones((3,3), np.uint8)
-        edge = cv2.morphologyEx(mask, cv2.MORPH_GRADIENT, kernel)
+        # get edge map via Canny for a thinner boundary
+        edge = cv2.Canny(mask * 255, 100, 200)
+        edge = (edge > 0).astype(np.uint8)
         
         # Convert to PIL for synced augmentations
         img_pil = Image.fromarray(img)
