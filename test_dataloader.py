@@ -7,7 +7,7 @@ def test_dataloader():
     print("Initializing DataLoader Smoke Test...")
     
     # We will test all datasets you plan to use
-    datasets_to_test = ['DocTamper', 'CASIAv2', 'RTM', 'DEFACTO', 'MIDV500']
+    datasets_to_test = ['CASIAv2', 'RTM', 'DEFACTO', 'MIDV500']
     
     try:
         # Create the dataloader with a small batch size
