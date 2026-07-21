@@ -29,3 +29,4 @@ reviewer_spend.json
 feedback.txt
 reports/*.png
 !reports/loss_curve.png
+audit_report.md
