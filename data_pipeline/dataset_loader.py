@@ -4,38 +4,65 @@ import random
 import cv2
 import numpy as np
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, random_split
 import matplotlib.pyplot as plt
+from PIL import Image, ImageFilter, ImageEnhance
+
+def get_splits(dataset, train_frac=0.70, val_frac=0.15):
+    total      = len(dataset)
+    train_size = int(train_frac * total)
+    val_size   = int(val_frac * total)
+    test_size  = total - train_size - val_size
+    return random_split(dataset, [train_size, val_size, test_size])
 
 class ForgeryDataset(Dataset):
     # Just a simple dataset for all our forgery data
-    def __init__(self, data_root, dataset_names, crop_size=256, is_train=True):
+    def __init__(self, data_root=None, dataset_names=None, crop_size=256, is_train=True, image_dir=None, mask_dir=None):
         self.data_root = data_root
         self.crop_size = crop_size
         self.is_train = is_train
         self.samples = []
         
-        # loop over the requested datasets and find all images and masks
-        for dname in dataset_names:
-            path = os.path.join(data_root, dname)
-            if not os.path.exists(path):
-                print(f"Warning: {path} not found!")
-                continue
-                
-            # assuming all images are jpg and masks are png
-            images = glob.glob(os.path.join(path, '*.jpg'))
-            for img_path in images:
-                # masks usually have _mask appended before extension
-                mask_path = img_path.replace('.jpg', '_mask.png')
-                if os.path.exists(mask_path):
-                    self.samples.append((img_path, mask_path))
-                else:
-                    # try without _mask just in case
-                    mask_path2 = img_path.replace('.jpg', '.png')
-                    if os.path.exists(mask_path2):
-                        self.samples.append((img_path, mask_path2))
+        # Support for test_pipeline.py style (direct directories)
+        if image_dir and mask_dir:
+            if os.path.exists(image_dir):
+                all_files = os.listdir(image_dir)
+                for f in sorted(all_files):
+                    ext = os.path.splitext(f)[1].lower()
+                    if ext not in ('.jpg', '.jpeg', '.png', '.tif', '.tiff'):
+                        continue
+                    stem = os.path.splitext(f)[0]
+                    mask_candidates = [
+                        os.path.join(mask_dir, stem + '_gt.png'),
+                        os.path.join(mask_dir, stem + '.png'),
+                        os.path.join(mask_dir, stem + '.jpg'),
+                        os.path.join(mask_dir, stem + '_mask.png'),
+                    ]
+                    mask_path = next((m for m in mask_candidates if os.path.exists(m)), None)
+                    if mask_path:
+                        self.samples.append((os.path.join(image_dir, f), mask_path))
+            print(f"Loaded {len(self.samples)} samples from {image_dir}")
+        # Standard usage from train.py
+        elif data_root and dataset_names:
+            for dname in dataset_names:
+                path = os.path.join(data_root, dname)
+                if not os.path.exists(path):
+                    print(f"Warning: {path} not found!")
+                    continue
                     
-        print(f"Loaded {len(self.samples)} samples from {dataset_names}")
+                # assuming all images are jpg and masks are png
+                images = glob.glob(os.path.join(path, '*.jpg'))
+                for img_path in sorted(images):
+                    # masks usually have _mask appended before extension
+                    mask_path = img_path.replace('.jpg', '_mask.png')
+                    if os.path.exists(mask_path):
+                        self.samples.append((img_path, mask_path))
+                    else:
+                        # try without _mask just in case
+                        mask_path2 = img_path.replace('.jpg', '.png')
+                        if os.path.exists(mask_path2):
+                            self.samples.append((img_path, mask_path2))
+            print(f"Loaded {len(self.samples)} samples from {dataset_names}")
 
     def __len__(self):
         return len(self.samples)
@@ -54,43 +81,73 @@ class ForgeryDataset(Dataset):
         if img.shape[:2] != mask.shape[:2]:
             mask = cv2.resize(mask, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_NEAREST)
 
-        h, w = img.shape[:2]
-        
-        if self.is_train:
-            # Random crop
-            if h > self.crop_size and w > self.crop_size:
-                y = random.randint(0, h - self.crop_size)
-                x = random.randint(0, w - self.crop_size)
-                img = img[y:y+self.crop_size, x:x+self.crop_size]
-                mask = mask[y:y+self.crop_size, x:x+self.crop_size]
-            else:
-                img = cv2.resize(img, (self.crop_size, self.crop_size))
-                mask = cv2.resize(mask, (self.crop_size, self.crop_size), interpolation=cv2.INTER_NEAREST)
-                
-            # Random horizontal flip
-            if random.random() > 0.5:
-                img = cv2.flip(img, 1)
-                mask = cv2.flip(mask, 1)
-                
-            # simulate jpeg compression artifacts since models overfit to them easily
-            if random.random() > 0.5:
-                q = random.randint(50, 95)
-                # cv2 uses BGR for encode so we gotta convert back and forth
-                img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-                _, enc = cv2.imencode('.jpg', img_bgr, [int(cv2.IMWRITE_JPEG_QUALITY), q])
-                dec = cv2.imdecode(enc, 1)
-                img = cv2.cvtColor(dec, cv2.COLOR_BGR2RGB)
-        else:
-            # just resize for test
-            img = cv2.resize(img, (self.crop_size, self.crop_size))
-            mask = cv2.resize(mask, (self.crop_size, self.crop_size), interpolation=cv2.INTER_NEAREST)
-            
         # make mask binary
         mask = (mask > 127).astype(np.uint8)
         
         # get edge map via simple morphological gradient (similar to canny but easier on binary)
         kernel = np.ones((3,3), np.uint8)
         edge = cv2.morphologyEx(mask, cv2.MORPH_GRADIENT, kernel)
+        
+        # Convert to PIL for synced augmentations
+        img_pil = Image.fromarray(img)
+        mask_pil = Image.fromarray(mask * 255)
+        edge_pil = Image.fromarray(edge * 255)
+        
+        if self.is_train:
+            # SyncedAugment logic
+            if random.random() < 0.5: # hflip
+                img_pil = img_pil.transpose(Image.FLIP_LEFT_RIGHT)
+                mask_pil = mask_pil.transpose(Image.FLIP_LEFT_RIGHT)
+                edge_pil = edge_pil.transpose(Image.FLIP_LEFT_RIGHT)
+
+            if random.random() < 0.2: # vflip
+                img_pil = img_pil.transpose(Image.FLIP_TOP_BOTTOM)
+                mask_pil = mask_pil.transpose(Image.FLIP_TOP_BOTTOM)
+                edge_pil = edge_pil.transpose(Image.FLIP_TOP_BOTTOM)
+
+            if random.random() < 0.4: # rotation (15 deg)
+                angle = random.uniform(-15, 15)
+                img_pil = img_pil.rotate(angle, resample=Image.BILINEAR, fillcolor=(245, 245, 245))
+                mask_pil = mask_pil.rotate(angle, resample=Image.NEAREST, fillcolor=0)
+                edge_pil = edge_pil.rotate(angle, resample=Image.NEAREST, fillcolor=0)
+
+            if random.random() < 0.3: # random crop and scale
+                scale = random.uniform(0.85, 1.0)
+                new_w = int(img_pil.width * scale)
+                new_h = int(img_pil.height * scale)
+                left = random.randint(0, max(0, img_pil.width - new_w))
+                top = random.randint(0, max(0, img_pil.height - new_h))
+                img_pil = img_pil.crop((left, top, left + new_w, top + new_h))
+                mask_pil = mask_pil.crop((left, top, left + new_w, top + new_h))
+                edge_pil = edge_pil.crop((left, top, left + new_w, top + new_h))
+
+            # Resize to crop_size
+            img_pil = img_pil.resize((self.crop_size, self.crop_size), Image.BILINEAR)
+            mask_pil = mask_pil.resize((self.crop_size, self.crop_size), Image.NEAREST)
+            edge_pil = edge_pil.resize((self.crop_size, self.crop_size), Image.NEAREST)
+
+            if random.random() < 0.5: # color jitter
+                brightness = random.uniform(0.8, 1.2)
+                contrast = random.uniform(0.8, 1.2)
+                img_pil = ImageEnhance.Brightness(img_pil).enhance(brightness)
+                img_pil = ImageEnhance.Contrast(img_pil).enhance(contrast)
+
+            if random.random() < 0.2: # gaussian blur
+                img_pil = img_pil.filter(ImageFilter.GaussianBlur(radius=random.uniform(0.5, 1.2)))
+                
+        else:
+            # just resize for test
+            img_pil = img_pil.resize((self.crop_size, self.crop_size), Image.BILINEAR)
+            mask_pil = mask_pil.resize((self.crop_size, self.crop_size), Image.NEAREST)
+            edge_pil = edge_pil.resize((self.crop_size, self.crop_size), Image.NEAREST)
+
+        # Convert back to numpy
+        img = np.array(img_pil)
+        mask = np.array(mask_pil)
+        edge = np.array(edge_pil)
+        
+        mask = (mask > 127).astype(np.uint8)
+        edge = (edge > 127).astype(np.uint8)
         
         # convert to torch tensors [C, H, W]
         img_tensor = torch.from_numpy(img.transpose((2, 0, 1))).float() / 255.0
