@@ -21,7 +21,7 @@ EPOCHS = 50
 SAVE_EVERY = 5
 
 # Which datasets to use for training
-DATASETS = ['DocTamper', 'CASIAv2', 'RTM']
+DATASETS = ['DocTamper', 'CASIAv2', 'RTM', 'DEFACTO', 'MIDV500']
 
 # =============================================================================
 # SMOKE TEST MODE
