@@ -9,6 +9,8 @@ from model.network import MVSSNetLite
 from model.fusion import CBAMFusion
 from data_pipeline.dataset_loader import get_dataloader
 
+import argparse
+
 # =============================================================================
 # HYPERPARAMETERS & CONFIG
 # =============================================================================
@@ -17,17 +19,19 @@ EDGE_LOSS_WEIGHT = 1.0
 
 LEARNING_RATE = 1e-4
 BATCH_SIZE = 8
-EPOCHS = 50
 SAVE_EVERY = 5
 
-# Which datasets to use for training
-DATASETS = ['CASIAv2', 'RTM', 'DEFACTO', 'MIDV500']
+parser = argparse.ArgumentParser(description="Train MVSS-Net Lite")
+parser.add_argument("--datasets", nargs='+', default=['CASIAv2', 'DEFACTO'], help="Datasets to train on")
+parser.add_argument("--epochs", type=int, default=50, help="Number of epochs to train")
+parser.add_argument("--smoke-test", action='store_true', help="Run a quick 2-batch smoke test")
+parser.add_argument("--stage-name", type=str, default="stage1", help="Name prefix for saving plots and models")
+parser.add_argument("--init-weights", type=str, default=None, help="Path to checkpoint to initialize weights from (for stage 2)")
+args = parser.parse_args()
 
-# =============================================================================
-# SMOKE TEST MODE
-# =============================================================================
-# If True, trains just 2 epochs on 2 batches each, to quickly verify pipeline
-SMOKE_TEST = True
+DATASETS = args.datasets
+EPOCHS = args.epochs
+SMOKE_TEST = args.smoke_test
 SMOKE_TEST_EPOCHS = 2
 SMOKE_TEST_BATCHES = 2
 
@@ -38,6 +42,12 @@ def train():
 
     # 1. Initialize model
     model = MVSSNetLite().to(device)
+    
+    if args.init_weights and os.path.exists(args.init_weights):
+        print(f"Loading weights from {args.init_weights}...")
+        checkpoint = torch.load(args.init_weights, map_location=device)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        print("Weights loaded successfully!")
     
     # 2. Optimizer
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
@@ -50,7 +60,8 @@ def train():
     
     # 4. DataLoader
     print(f"Loading datasets: {DATASETS}...")
-    train_loader = get_dataloader(DATASETS, batch_size=BATCH_SIZE, is_train=True)
+    train_loader, val_loader, test_loader = get_dataloader(DATASETS, batch_size=BATCH_SIZE, is_train=True, return_splits=True)
+    print(f"Dataset splits -> Train: {len(train_loader)} batches | Val: {len(val_loader)} batches | Test: {len(test_loader)} batches")
     
     # Ensure output dirs exist
     os.makedirs('model/checkpoints', exist_ok=True)
@@ -121,8 +132,31 @@ def train():
         avg_edge = epoch_edge_loss / max(1, batches_processed)
         avg_total = epoch_total_loss / max(1, batches_processed)
         
+        # --- VALIDATION LOOP ---
+        model.eval()
+        val_seg_loss, val_edge_loss, val_total_loss = 0.0, 0.0, 0.0
+        val_batches = 0
+        with torch.no_grad():
+            for v_imgs, v_masks, v_edges in val_loader:
+                if SMOKE_TEST and val_batches >= SMOKE_TEST_BATCHES:
+                    break
+                v_imgs, v_masks, v_edges = v_imgs.to(device), v_masks.to(device), v_edges.to(device)
+                v_pred_seg, v_pred_edge = model(v_imgs)
+                vl_seg = seg_criterion(v_pred_seg, v_masks)
+                vl_edge = edge_criterion(v_pred_edge, v_edges)
+                vl_total = (SEG_LOSS_WEIGHT * vl_seg) + (EDGE_LOSS_WEIGHT * vl_edge)
+                val_seg_loss += vl_seg.item()
+                val_edge_loss += vl_edge.item()
+                val_total_loss += vl_total.item()
+                val_batches += 1
+                
+        avg_val_seg = val_seg_loss / max(1, val_batches)
+        avg_val_edge = val_edge_loss / max(1, val_batches)
+        avg_val_total = val_total_loss / max(1, val_batches)
+        
         print(f"=== Epoch {epoch} Summary ===")
-        print(f"Avg Seg: {avg_seg:.4f} | Avg Edge: {avg_edge:.4f} | Avg Total: {avg_total:.4f}\n")
+        print(f"TRAIN -> Avg Seg: {avg_seg:.4f} | Avg Edge: {avg_edge:.4f} | Avg Total: {avg_total:.4f}")
+        print(f"VAL   -> Avg Seg: {avg_val_seg:.4f} | Avg Edge: {avg_val_edge:.4f} | Avg Total: {avg_val_total:.4f}\n")
         
         history['epoch'].append(epoch)
         history['seg_loss'].append(avg_seg)
@@ -131,7 +165,7 @@ def train():
         
         # Save checkpoint
         if epoch % SAVE_EVERY == 0 or epoch == total_epochs:
-            chkpt_path = f"model/checkpoints/mvss_lite_ep{epoch}.pt"
+            chkpt_path = f"model/checkpoints/{args.stage_name}_mvss_lite_ep{epoch}.pt"
             torch.save({
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
@@ -154,9 +188,10 @@ def train():
     plt.grid(True)
     
     # Save the plot
-    plt.savefig('reports/loss_curve.png')
+    plot_path = f"reports/{args.stage_name}_loss_curve.png"
+    plt.savefig(plot_path)
     plt.close()
-    print("Training finished! Plot saved to reports/loss_curve.png")
+    print(f"Training finished! Plot saved to {plot_path}")
 
 
 if __name__ == '__main__':
