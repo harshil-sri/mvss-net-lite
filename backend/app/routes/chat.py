@@ -19,7 +19,7 @@ async def chat_with_prediction(prediction_id: str, req: ChatRequest):
         raise HTTPException(404, "Prediction not found")
 
     system = (
-        "Answer ONLY using the JSON below. If the answer isn't in it, say you don't know.\n"
+        "Answer ONLY using the JSON below. If the answer isn't in it, say you don't know. for the forensic part only and act as a general chat bot but not to make claim unrelated to the json\n"
         f"{json.dumps(prediction)}"
     )
     convo = "\n".join(f'{m["role"]}: {m["content"]}' for m in req.history)

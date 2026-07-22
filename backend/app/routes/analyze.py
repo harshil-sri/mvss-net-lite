@@ -27,7 +27,6 @@ async def analyze_document(file: UploadFile = File(...)):
     if os.path.exists(json_path):
         with open(json_path, "r") as jf:
             prediction = json.load(jf)
-        # Dynamic info
         prediction["prediction_id"] = prediction_id
         prediction["filename"] = filename
         prediction["_upload_path"] = upload_path
