@@ -21,38 +21,25 @@ async def analyze_document(file: UploadFile = File(...)):
 
     prediction_id = f"pred_{int(time.time())}"
     
-    original_basename = os.path.splitext(file.filename)[0]
-    json_path = os.path.join(DEMO_DIR, f"{original_basename}.json")
-
-    if os.path.exists(json_path):
-        with open(json_path, "r") as jf:
-            prediction = json.load(jf)
-        # Dynamic info
-        prediction["prediction_id"] = prediction_id
-        prediction["filename"] = filename
-        prediction["_upload_path"] = upload_path
-        if "artifacts" not in prediction:
-            prediction["artifacts"] = {}
-        prediction["artifacts"]["mask_path"] = f"app/static/generated/{prediction_id}_mask.png"
-    else:
-        # Fallback
+    # Run the live model inference
+    try:
+        from app.services.inference import analyze_image
+        prediction = analyze_image(upload_path, prediction_id)
+    except Exception as e:
+        print(f"Inference error: {e}")
+        # Fallback in case of failure
         prediction = {
-            "prediction_id": prediction_id,
-            "filename": filename,
-            "verdict": "Forged",
-            "confidence": 0.82,
-            "manipulated_regions": [
-                {
-                    "region_id": "r1",
-                    "bbox": {"x": 200, "y": 150, "w": 100, "h": 100},
-                    "local_confidence": 0.85,
-                    "edge_consistency_score": 0.30,
-                }
-            ],
-            "artifacts": {"mask_path": f"app/static/generated/{prediction_id}_mask.png"},
-            "model_meta": {"model_version": "demo-v1", "inference_time_ms": 420},
-            "_upload_path": upload_path,
+            "verdict": "Error",
+            "confidence": 0.0,
+            "manipulated_regions": [],
+            "artifacts": {},
+            "model_meta": {"error": str(e)}
         }
+        
+    # Append dynamic upload info
+    prediction["prediction_id"] = prediction_id
+    prediction["filename"] = filename
+    prediction["_upload_path"] = upload_path
 
     save_prediction(prediction_id, prediction)
     return RedirectResponse(url=f"/report/{prediction_id}", status_code=303)
