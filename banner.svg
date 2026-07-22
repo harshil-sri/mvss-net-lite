@@ -1,0 +1,49 @@
+<svg width="1200" height="280" viewBox="0 0 1200 280" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#58a6ff"/>
+      <stop offset="100%" stop-color="#a371f7"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#21262d" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="280" fill="url(#bg)"/>
+  <rect width="1200" height="280" fill="url(#grid)"/>
+
+  <rect x="0" y="0" width="6" height="280" fill="url(#accent)"/>
+
+  <!-- document scan motif -->
+  <g transform="translate(920,55)" opacity="0.9">
+    <rect x="0" y="0" width="140" height="180" rx="6" fill="#161b22" stroke="#30363d" stroke-width="2"/>
+    <line x1="20" y1="35" x2="120" y2="35" stroke="#8b949e" stroke-width="3"/>
+    <line x1="20" y1="55" x2="120" y2="55" stroke="#8b949e" stroke-width="3"/>
+    <line x1="20" y1="75" x2="90" y2="75" stroke="#8b949e" stroke-width="3"/>
+    <rect x="20" y="100" width="55" height="55" rx="3" fill="none" stroke="#f85149" stroke-width="2.5" stroke-dasharray="4 3"/>
+    <line x1="20" y1="165" x2="70" y2="165" stroke="#8b949e" stroke-width="3"/>
+    <rect x="-6" y="94" width="152" height="67" rx="4" fill="none" stroke="#58a6ff" stroke-width="1.5" opacity="0.7"/>
+    <circle cx="-6" cy="94" r="3" fill="#58a6ff"/>
+    <circle cx="146" cy="161" r="3" fill="#58a6ff"/>
+  </g>
+
+  <text x="60" y="105" font-family="'Segoe UI', Arial, sans-serif" font-size="42" font-weight="700" fill="#f0f6fc">
+    MVSS-Net Lite
+  </text>
+  <text x="60" y="145" font-family="'Segoe UI', Arial, sans-serif" font-size="19" font-weight="400" fill="#8b949e">
+    Document Forgery Detection &#8212; with an Interpretability Layer
+  </text>
+
+  <rect x="60" y="175" width="150" height="30" rx="15" fill="#1f2937" stroke="#30363d"/>
+  <text x="135" y="195" font-family="'Segoe UI', Arial, sans-serif" font-size="13" fill="#58a6ff" text-anchor="middle">ResNet-34 Backbone</text>
+
+  <rect x="222" y="175" width="140" height="30" rx="15" fill="#1f2937" stroke="#30363d"/>
+  <text x="292" y="195" font-family="'Segoe UI', Arial, sans-serif" font-size="13" fill="#a371f7" text-anchor="middle">Attention Fusion</text>
+
+  <rect x="374" y="175" width="130" height="30" rx="15" fill="#1f2937" stroke="#30363d"/>
+  <text x="439" y="195" font-family="'Segoe UI', Arial, sans-serif" font-size="13" fill="#3fb950" text-anchor="middle">RAG Chatbot</text>
+</svg>

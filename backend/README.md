@@ -53,3 +53,5 @@ app/
 ## Replace the stub model
 
 `routes/analyze.py` currently returns hardcoded prediction JSON. Swap that block for the real call to the detection model once it's ready — the JSON shape is already the contract the rest of the app expects.
+# Backend
+This directory is intended for the future backend API integration of the MVSS-Net Lite service. It is currently scaffolded and not yet implemented.
