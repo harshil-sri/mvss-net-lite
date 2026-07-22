@@ -18,6 +18,10 @@ data_pipeline/processed/*
 !data_pipeline/processed/.gitkeep
 reports/generated/*
 !reports/generated/.gitkeep
+backend/app/static/uploads/*
+!backend/app/static/uploads/.gitkeep
+backend/app/static/generated/*
+!backend/app/static/generated/.gitkeep
 swarm.py
 swarm.log
 task.md
