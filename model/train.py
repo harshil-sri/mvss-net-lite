@@ -74,7 +74,10 @@ def train():
         'epoch': [],
         'seg_loss': [],
         'edge_loss': [],
-        'total_loss': []
+        'total_loss': [],
+        'val_seg_loss': [],
+        'val_edge_loss': [],
+        'val_total_loss': []
     }
     
     print("Starting training loop...")
@@ -163,6 +166,10 @@ def train():
         history['edge_loss'].append(avg_edge)
         history['total_loss'].append(avg_total)
         
+        history['val_seg_loss'].append(avg_val_seg)
+        history['val_edge_loss'].append(avg_val_edge)
+        history['val_total_loss'].append(avg_val_total)
+        
         # Save checkpoint
         if epoch % SAVE_EVERY == 0 or epoch == total_epochs:
             chkpt_path = f"model/checkpoints/{args.stage_name}_mvss_lite_ep{epoch}.pt"
@@ -177,9 +184,10 @@ def train():
     # Plotting the loss curve
     print("Generating loss curve plot...")
     plt.figure(figsize=(8, 5))
-    plt.plot(history['epoch'], history['seg_loss'], label='Seg Loss', marker='o')
-    plt.plot(history['epoch'], history['edge_loss'], label='Edge Loss', marker='o')
-    plt.plot(history['epoch'], history['total_loss'], label='Total Loss', marker='o', linewidth=2)
+    plt.plot(history['epoch'], history['seg_loss'], label='Train Seg Loss', marker='o')
+    plt.plot(history['epoch'], history['edge_loss'], label='Train Edge Loss', marker='o')
+    plt.plot(history['epoch'], history['total_loss'], label='Train Total Loss', marker='o', linewidth=2)
+    plt.plot(history['epoch'], history['val_total_loss'], label='Val Total Loss', marker='s', linestyle='--', linewidth=2)
     
     plt.title('Training Loss per Epoch')
     plt.xlabel('Epoch')
@@ -192,6 +200,24 @@ def train():
     plt.savefig(plot_path)
     plt.close()
     print(f"Training finished! Plot saved to {plot_path}")
+    
+    # Save statistics to CSV
+    csv_path = f"reports/{args.stage_name}_history.csv"
+    import csv
+    with open(csv_path, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['epoch', 'train_seg_loss', 'train_edge_loss', 'train_total_loss', 'val_seg_loss', 'val_edge_loss', 'val_total_loss'])
+        for i in range(len(history['epoch'])):
+            writer.writerow([
+                history['epoch'][i], 
+                history['seg_loss'][i], 
+                history['edge_loss'][i], 
+                history['total_loss'][i],
+                history['val_seg_loss'][i],
+                history['val_edge_loss'][i],
+                history['val_total_loss'][i]
+            ])
+    print(f"Statistics saved to {csv_path}")
 
 
 if __name__ == '__main__':
