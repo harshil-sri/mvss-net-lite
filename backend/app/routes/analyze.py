@@ -34,7 +34,7 @@ async def analyze_document(file: UploadFile = File(...)):
             prediction["artifacts"] = {}
         prediction["artifacts"]["mask_path"] = f"app/static/generated/{prediction_id}_mask.png"
     else:
-        # Fallback
+        
         prediction = {
             "prediction_id": prediction_id,
             "filename": filename,
