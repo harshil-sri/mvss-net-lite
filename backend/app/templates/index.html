@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DocForge — Document Forgery & Integrity Forensics</title>
+
+<!-- Early Script to Prevent Theme Flash -->
+<script>
+  (function() {
+    const saved = localStorage.getItem('docforge-theme');
+    if (saved) {
+      document.documentElement.setAttribute('data-theme', saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  })();
+</script>
+
+<!-- Modern Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    /* Design Tokens - Cool Paper & Verification Signal Ink */
+    --paper: #FAFAF7;
+    --ink: #141311;
+    --ink-dim: #6B6860;
+    --signal: #E8432C;
+    --signal-hover: #D03721;
+    --signal-light: rgba(232, 67, 44, 0.08);
+    --verified: #1FAA59;
+    --void: #E8432C;
+    --surface: #FFFFFF;
+    --surface-subtle: #F4F3EF;
+    --line: #E7E3DA;
+    --line-dark: #141311;
+    --grid-line: rgba(20, 19, 17, 0.035);
+    --card-shadow: 8px 8px 0px #141311;
+
+    --font-display: 'Bricolage Grotesque', -apple-system, sans-serif;
+    --font-sans: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'Space Mono', monospace;
+  }
+
+  /* Refined Ergonomic Dark Theme Tokens (Comfortable Slate Charcoal) */
+  [data-theme="dark"] {
+    --paper: #121316;
+    --ink: #E2E4E9;
+    --ink-dim: #959BA6;
+    --signal: #F05238;
+    --signal-hover: #D83F26;
+    --signal-light: rgba(240, 82, 56, 0.14);
+    --verified: #22C55E;
+    --void: #F05238;
+    --surface: #1B1D22;
+    --surface-subtle: #242730;
+    --line: #2E323D;
+    --line-dark: #3F4452;
+    --grid-line: rgba(226, 228, 233, 0.025);
+    --card-shadow: 8px 8px 0px #090A0C;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #121316;
+      --ink: #E2E4E9;
+      --ink-dim: #959BA6;
+      --signal: #F05238;
+      --signal-hover: #D83F26;
+      --signal-light: rgba(240, 82, 56, 0.14);
+      --verified: #22C55E;
+      --void: #F05238;
+      --surface: #1B1D22;
+      --surface-subtle: #242730;
+      --line: #2E323D;
+      --line-dark: #3F4452;
+      --grid-line: rgba(226, 228, 233, 0.025);
+      --card-shadow: 8px 8px 0px #090A0C;
+    }
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-size: 16px;
+    background-color: var(--paper);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    letter-spacing: -0.011em;
+    color: var(--ink);
+    background-color: var(--paper);
+    /* Dynamic Architectural Grid */
+    background-image: 
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 40px 40px;
+    overflow-x: hidden;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  /* Accessibility focus styles */
+  a:focus-visible, button:focus-visible, input:focus-visible, [tabindex="0"]:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 2px;
+  }
+
+  /* Header Navbar */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 2.5rem;
+    border-bottom: 1px solid var(--line);
+    background: rgba(250, 250, 247, 0.9);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+  }
+
+  [data-theme="dark"] header {
+    background: rgba(18, 19, 22, 0.9);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  .brand-stamp {
+    width: 32px;
+    height: 32px;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.1rem;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+  }
+
+  .brand:hover .brand-stamp {
+    background: var(--signal);
+    color: #FFFFFF;
+    transform: rotate(-3deg) scale(1.05);
+  }
+
+  .brand-title {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+
+  .brand-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.2rem 0.5rem;
+    background: var(--surface-subtle);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    color: var(--ink-dim);
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--ink-dim);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--verified);
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+    animation: pulse 2s infinite ease-in-out;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Theme Toggle Button */
+  .theme-toggle-btn {
+    background: var(--surface-subtle);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .theme-toggle-btn:hover {
+    background: var(--signal);
+    color: #FFFFFF;
+    border-color: var(--signal);
+  }
+
+  .sun-icon { display: block; }
+  .moon-icon { display: none; }
+
+  [data-theme="dark"] .sun-icon { display: none; }
+  [data-theme="dark"] .moon-icon { display: block; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .sun-icon { display: none; }
+    :root:not([data-theme="light"]) .moon-icon { display: block; }
+  }
+
+  /* Main Layout Grid */
+  main {
+    flex: 1;
+    max-width: 1320px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 3.5rem 2.5rem 5rem;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  @media (max-width: 1024px) {
+    main {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      padding: 2rem 1.5rem;
+    }
+  }
+
+  /* Hero Left Column */
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .hero-badge {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.35rem 0.85rem;
+    background: var(--surface-subtle);
+    color: var(--ink);
+    border: 1px solid var(--line-dark);
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .hero-badge svg {
+    color: var(--signal);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: 4.2rem;
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+    text-transform: uppercase;
+  }
+
+  /* Signature Redaction-Wipe Highlight */
+  .wipe-highlight {
+    position: relative;
+    display: inline-block;
+    color: var(--signal);
+    white-space: nowrap;
+  }
+
+  .wipe-highlight::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--paper);
+    transform-origin: left;
+    animation: wipeReveal 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes wipeReveal {
+    0% { transform: scaleX(1); }
+    100% { transform: scaleX(0); }
+  }
+
+  .hero-subtitle {
+    font-size: 1.18rem;
+    line-height: 1.6;
+    color: var(--ink-dim);
+    max-width: 540px;
+    font-weight: 400;
+  }
+
+  /* Concrete Trust / Capability Cards */
+  .trust-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    margin-top: 0.5rem;
+  }
+
+  .trust-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--line-dark);
+    border-radius: 6px;
+    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .trust-item:hover {
+    transform: translateX(4px);
+    border-left-color: var(--signal);
+    border-color: var(--line-dark);
+  }
+
+  .trust-num {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--signal);
+    background: var(--signal-light);
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+  }
+
+  .trust-text h4 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.2rem;
+  }
+
+  .trust-text p {
+    font-size: 0.88rem;
+    color: var(--ink-dim);
+    line-height: 1.4;
+  }
+
+
+  /* Right Column: Upload Workstation */
+  .upload-card {
+    background: var(--surface);
+    border: 2px solid var(--line-dark);
+    border-radius: 12px;
+    padding: 2.25rem;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: relative;
+    transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .upload-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .upload-header h2 {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+
+  .upload-header p {
+    font-size: 0.92rem;
+    color: var(--ink-dim);
+  }
+
+  .dropzone {
+    border: 2px dashed var(--line-dark);
+    border-radius: 8px;
+    padding: 3.5rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    background: var(--surface-subtle);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 240px;
+  }
+
+  .dropzone:hover, .dropzone.drag-active {
+    border-color: var(--signal);
+    background: var(--signal-light);
+    transform: translateY(-2px);
+  }
+
+  .dropzone-icon-wrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 1px solid var(--line-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .dropzone:hover .dropzone-icon-wrap {
+    background: var(--signal);
+    color: #FFFFFF;
+    border-color: var(--signal);
+    transform: scale(1.08);
+  }
+
+  .dropzone h3 {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .dropzone p {
+    font-size: 0.85rem;
+    color: var(--ink-dim);
+  }
+
+  .file-types {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink-dim);
+    background: var(--paper);
+    padding: 0.2rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    margin-top: 0.5rem;
+  }
+
+  /* Preview Container Overlay */
+  #preview-container {
+    position: absolute;
+    inset: 0;
+    background: var(--surface);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    z-index: 20;
+    padding: 1.5rem;
+    gap: 1rem;
+    border: 2px solid var(--signal);
+  }
+
+  #preview-img {
+    max-height: 160px;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+
+  .file-name-badge {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink);
+    background: var(--surface-subtle);
+    padding: 0.3rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #clear-btn {
+    background: var(--paper);
+    border: 1px solid var(--line-dark);
+    color: var(--ink);
+    padding: 0.45rem 1rem;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.15s ease;
+  }
+
+  #clear-btn:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  /* Primary Action Button */
+  #submit-btn {
+    width: 100%;
+    padding: 1.1rem;
+    background: var(--signal);
+    color: #FFFFFF;
+    border: 2px solid var(--line-dark);
+    border-radius: 6px;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    cursor: pointer;
+    min-height: 52px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    box-shadow: 4px 4px 0px var(--line-dark);
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  #submit-btn:hover:not(:disabled) {
+    background: var(--signal-hover);
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px var(--line-dark);
+  }
+
+  #submit-btn:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px var(--line-dark);
+  }
+
+  #submit-btn:disabled {
+    background: var(--line);
+    color: var(--ink-dim);
+    border-color: var(--line);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  /* Spinner */
+  .spin {
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 1.5rem 2.5rem;
+    background: var(--paper);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--ink-dim);
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+  }
+
+  footer a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Reduced Motion Respect */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    .wipe-highlight::after {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Header Navigation -->
+  <header>
+    <a href="/" class="brand" aria-label="DocForge Home">
+      <div class="brand-stamp">DF</div>
+      <span class="brand-title">DOCFORGE</span>
+      <span class="brand-tag">v2.4 FORENSICS</span>
+    </a>
+    <div class="nav-right">
+      <div class="status-pill">
+        <span class="status-dot"></span>
+        <span>ENGINE READY</span>
+      </div>
+
+      <!-- Theme Toggle Button -->
+      <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle light or dark theme">
+        <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Hero & Upload Workstation -->
+  <main>
+    <!-- Left Hero & Product Truth -->
+    <div class="hero-left">
+      <div class="hero-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        Pixel-Level Verification
+      </div>
+
+      <h1>
+        VERIFY EVERY PIXEL.<br>
+        <span class="wipe-highlight">PROVE TRUTH.</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        DocForge analyzes digital documents to immediately expose hidden manipulation, font tampering, copy-move splicing, and metadata anomalies.
+      </p>
+
+      <!-- Trust Grid -->
+      <div class="trust-grid">
+        <div class="trust-item">
+          <span class="trust-num">01</span>
+          <div class="trust-text">
+            <h4>Copy-Move & Splicing Detection</h4>
+            <p>Identifies cloned regions, pasted elements, and duplicated signatures across document layers.</p>
+          </div>
+        </div>
+
+        <div class="trust-item">
+          <span class="trust-num">02</span>
+          <div class="trust-text">
+            <h4>Resampling & Noise Variance Analysis</h4>
+            <p>Detects high-frequency compression discontinuities caused by image editor saves.</p>
+          </div>
+        </div>
+
+        <div class="trust-item">
+          <span class="trust-num">03</span>
+          <div class="trust-text">
+            <h4>Immutable Forensic Verification</h4>
+            <p>Generates an audit report with confidence ratings and interactive AI assistant verification.</p>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+    <!-- Right Upload Card Workstation -->
+    <div class="upload-card">
+      <div class="upload-header">
+        <h2>INSPECT DOCUMENT</h2>
+        <p>Upload any PDF scan, PNG, JPEG, or TIFF for forensic evaluation.</p>
+      </div>
+
+      <form action="/analyze" method="post" enctype="multipart/form-data" id="upload-form">
+        <input type="file" name="file" id="file-input" accept="image/*" required style="display:none">
+        
+        <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload document file dropzone">
+          <div class="dropzone-icon-wrap">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
+          <h3>Drop document image here</h3>
+          <p>or click anywhere to browse local files</p>
+          <span class="file-types">PNG, JPG, WEBP, BMP (MAX 25MB)</span>
+          
+          <div id="preview-container">
+            <img id="preview-img" src="" alt="Document Preview">
+            <div class="file-name-badge" id="file-name-display">File Loaded</div>
+            <button type="button" id="clear-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              Remove File
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="submit-btn" disabled>
+          <span>RUN FORENSIC ANALYSIS</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div>DOCFORGE FORENSICS INC. &copy; 2026</div>
+    <div>ZERO-RETENTION AUDIT POLICY</div>
+  </footer>
+
+  <script>
+    // Theme Toggle Handler
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 
+          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', nextTheme);
+        localStorage.setItem('docforge-theme', nextTheme);
+      });
+    }
+
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('file-input');
+    const previewContainer = document.getElementById('preview-container');
+    const previewImg = document.getElementById('preview-img');
+    const fileNameDisplay = document.getElementById('file-name-display');
+    const clearBtn = document.getElementById('clear-btn');
+    const submitBtn = document.getElementById('submit-btn');
+    const uploadForm = document.getElementById('upload-form');
+
+    // Accessibility key handling
+    dropzone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        fileInput.click();
+      }
+    });
+
+    dropzone.addEventListener('click', (e) => {
+      if (e.target !== clearBtn && !clearBtn.contains(e.target)) {
+        fileInput.click();
+      }
+    });
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) { 
+      e.preventDefault(); 
+      e.stopPropagation(); 
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropzone.addEventListener(eventName, () => dropzone.classList.add('drag-active'), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, () => dropzone.classList.remove('drag-active'), false);
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      if (dt.files && dt.files.length) {
+        fileInput.files = dt.files;
+        handleFiles(dt.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', function() {
+      if (this.files && this.files.length) {
+        handleFiles(this.files[0]);
+      }
+    });
+
+    function handleFiles(file) {
+      if (!file.type.startsWith('image/')) return;
+      fileNameDisplay.textContent = file.name;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        previewContainer.style.display = 'flex';
+        submitBtn.disabled = false;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    clearBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fileInput.value = '';
+      previewImg.src = '';
+      fileNameDisplay.textContent = 'File Loaded';
+      previewContainer.style.display = 'none';
+      submitBtn.disabled = true;
+    });
+
+    uploadForm.addEventListener('submit', () => {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <svg class="spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+        <span>ANALYZING PIXELS...</span>
+      `;
+    });
+  </script>
+</body>
+</html>
