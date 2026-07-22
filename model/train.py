@@ -26,7 +26,8 @@ parser.add_argument("--datasets", nargs='+', default=['CASIAv2', 'DEFACTO'], hel
 parser.add_argument("--epochs", type=int, default=50, help="Number of epochs to train")
 parser.add_argument("--smoke-test", action='store_true', help="Run a quick 2-batch smoke test")
 parser.add_argument("--stage-name", type=str, default="stage1", help="Name prefix for saving plots and models")
-parser.add_argument("--init-weights", type=str, default=None, help="Path to checkpoint to initialize weights from (for stage 2)")
+parser.add_argument("--init-weights", type=str, default=None, help="Path to checkpoint to initialize weights from")
+parser.add_argument("--resume", action='store_true', help="Resume training from init_weights and append to history")
 args = parser.parse_args()
 
 DATASETS = args.datasets
@@ -43,14 +44,22 @@ def train():
     # 1. Initialize model
     model = MVSSNetLite().to(device)
     
+    # 2. Optimizer
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    
+    start_epoch = 1
+    
     if args.init_weights and os.path.exists(args.init_weights):
         print(f"Loading weights from {args.init_weights}...")
         checkpoint = torch.load(args.init_weights, map_location=device)
         model.load_state_dict(checkpoint['model_state_dict'])
+        
+        if args.resume and 'optimizer_state_dict' in checkpoint:
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            start_epoch = checkpoint['epoch'] + 1
+            print(f"Resuming training from epoch {start_epoch}")
+            
         print("Weights loaded successfully!")
-    
-    # 2. Optimizer
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     
     # 3. Loss functions
     # Using BCEWithLogitsLoss because usually networks output raw logits 
@@ -80,8 +89,24 @@ def train():
         'val_total_loss': []
     }
     
+    if args.resume:
+        csv_path = f"reports/{args.stage_name}_history.csv"
+        if os.path.exists(csv_path):
+            import csv
+            with open(csv_path, 'r') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    history['epoch'].append(int(row['epoch']))
+                    history['seg_loss'].append(float(row['train_seg_loss']))
+                    history['edge_loss'].append(float(row['train_edge_loss']))
+                    history['total_loss'].append(float(row['train_total_loss']))
+                    history['val_seg_loss'].append(float(row['val_seg_loss']))
+                    history['val_edge_loss'].append(float(row['val_edge_loss']))
+                    history['val_total_loss'].append(float(row['val_total_loss']))
+            print(f"Loaded existing history from {csv_path}")
+    
     print("Starting training loop...")
-    for epoch in range(1, total_epochs + 1):
+    for epoch in range(start_epoch, total_epochs + 1):
         model.train()
         
         epoch_seg_loss = 0.0
