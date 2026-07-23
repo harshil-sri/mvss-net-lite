@@ -55,6 +55,7 @@ def analyze_image(img_path: str, prediction_id: str):
     
     transform = transforms.Compose([
         transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
     
     tensor_img = transform(img_rgb).unsqueeze(0).to(device)
@@ -83,8 +84,13 @@ def analyze_image(img_path: str, prediction_id: str):
     mask_filename = f"{prediction_id}_mask.png"
     edge_filename = f"{prediction_id}_edge.png"
     
-    mask_save_path = os.path.join("app/static/generated", mask_filename)
-    edge_save_path = os.path.join("app/static/generated", edge_filename)
+    # Robust path resolution
+    base_dir = os.path.dirname(__file__)
+    generated_dir = os.path.abspath(os.path.join(base_dir, "../../app/static/generated"))
+    os.makedirs(generated_dir, exist_ok=True)
+    
+    mask_save_path = os.path.join(generated_dir, mask_filename)
+    edge_save_path = os.path.join(generated_dir, edge_filename)
     
     cv2.imwrite(mask_save_path, mask_original_size)
     cv2.imwrite(edge_save_path, edge_original_size)
