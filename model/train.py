@@ -11,6 +11,32 @@ from model.fusion import CBAMFusion
 from data_pipeline.dataset_loader import get_dataloader
 
 import argparse
+import torch.nn.functional as F
+
+class CombinedLoss(nn.Module):
+    def __init__(self, bce_weight=1.0, dice_weight=1.0, pos_weight_val=50.0):
+        super(CombinedLoss, self).__init__()
+        self.bce_weight = bce_weight
+        self.dice_weight = dice_weight
+        self.pos_weight_val = pos_weight_val
+
+    def forward(self, inputs, targets):
+        # Create pos_weight tensor on the same device as inputs
+        pos_weight = torch.tensor([self.pos_weight_val]).to(inputs.device)
+        
+        # Calculate BCE loss with pos_weight
+        bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, pos_weight=pos_weight)
+        
+        # Calculate Dice loss (expects probabilities)
+        probs = torch.sigmoid(inputs)
+        probs_flat = probs.view(-1)
+        targets_flat = targets.view(-1)
+        
+        smooth = 1e-5
+        intersection = (probs_flat * targets_flat).sum()
+        dice_loss = 1 - ((2. * intersection + smooth) / (probs_flat.sum() + targets_flat.sum() + smooth))
+        
+        return (self.bce_weight * bce_loss) + (self.dice_weight * dice_loss)
 
 # =============================================================================
 # HYPERPARAMETERS & CONFIG
@@ -63,10 +89,11 @@ def train():
         print("Weights loaded successfully!")
     
     # 3. Loss functions
-    # Using BCEWithLogitsLoss because usually networks output raw logits 
-    # instead of post-sigmoid probabilities for numerical stability.
-    seg_criterion = nn.BCEWithLogitsLoss()
-    edge_criterion = nn.BCEWithLogitsLoss()
+    # Using Combined BCE + Dice Loss with a heavy pos_weight (50.0) 
+    # to severely penalize the model for missing the 1% forged pixels.
+    # This prevents the mode collapse where it just predicts all zeros.
+    seg_criterion = CombinedLoss(bce_weight=1.0, dice_weight=1.0, pos_weight_val=50.0)
+    edge_criterion = CombinedLoss(bce_weight=1.0, dice_weight=1.0, pos_weight_val=50.0)
     
     # 4. DataLoader
     print(f"Loading datasets: {DATASETS}...")
