@@ -1,4 +1,5 @@
 import os
+import time
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -86,7 +87,10 @@ def train():
         'total_loss': [],
         'val_seg_loss': [],
         'val_edge_loss': [],
-        'val_total_loss': []
+        'val_total_loss': [],
+        'learning_rate': [],
+        'epoch_time_sec': [],
+        'gpu_mem_mb': []
     }
     
     if args.resume:
@@ -103,11 +107,20 @@ def train():
                     history['val_seg_loss'].append(float(row['val_seg_loss']))
                     history['val_edge_loss'].append(float(row['val_edge_loss']))
                     history['val_total_loss'].append(float(row['val_total_loss']))
+                    
+                    # Handle backwards compatibility if old CSV lacks new metrics
+                    history['learning_rate'].append(float(row.get('learning_rate', LEARNING_RATE)))
+                    history['epoch_time_sec'].append(float(row.get('epoch_time_sec', 0.0)))
+                    history['gpu_mem_mb'].append(float(row.get('gpu_mem_mb', 0.0)))
             print(f"Loaded existing history from {csv_path}")
     
     print("Starting training loop...")
     for epoch in range(start_epoch, total_epochs + 1):
         model.train()
+        
+        epoch_start_time = time.time()
+        if torch.cuda.is_available():
+            torch.cuda.reset_peak_memory_stats()
         
         epoch_seg_loss = 0.0
         epoch_edge_loss = 0.0
@@ -182,7 +195,13 @@ def train():
         avg_val_edge = val_edge_loss / max(1, val_batches)
         avg_val_total = val_total_loss / max(1, val_batches)
         
+        epoch_end_time = time.time()
+        epoch_duration = epoch_end_time - epoch_start_time
+        current_lr = optimizer.param_groups[0]['lr']
+        gpu_mem = torch.cuda.max_memory_allocated() / (1024*1024) if torch.cuda.is_available() else 0.0
+        
         print(f"=== Epoch {epoch} Summary ===")
+        print(f"Time: {epoch_duration:.1f}s | LR: {current_lr:.6f} | GPU Mem: {gpu_mem:.0f} MB")
         print(f"TRAIN -> Avg Seg: {avg_seg:.4f} | Avg Edge: {avg_edge:.4f} | Avg Total: {avg_total:.4f}")
         print(f"VAL   -> Avg Seg: {avg_val_seg:.4f} | Avg Edge: {avg_val_edge:.4f} | Avg Total: {avg_val_total:.4f}\n")
         
@@ -194,6 +213,10 @@ def train():
         history['val_seg_loss'].append(avg_val_seg)
         history['val_edge_loss'].append(avg_val_edge)
         history['val_total_loss'].append(avg_val_total)
+        
+        history['learning_rate'].append(current_lr)
+        history['epoch_time_sec'].append(epoch_duration)
+        history['gpu_mem_mb'].append(gpu_mem)
         
         # Save checkpoint
         if epoch % SAVE_EVERY == 0 or epoch == total_epochs:
@@ -231,7 +254,7 @@ def train():
     import csv
     with open(csv_path, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['epoch', 'train_seg_loss', 'train_edge_loss', 'train_total_loss', 'val_seg_loss', 'val_edge_loss', 'val_total_loss'])
+        writer.writerow(['epoch', 'train_seg_loss', 'train_edge_loss', 'train_total_loss', 'val_seg_loss', 'val_edge_loss', 'val_total_loss', 'learning_rate', 'epoch_time_sec', 'gpu_mem_mb'])
         for i in range(len(history['epoch'])):
             writer.writerow([
                 history['epoch'][i], 
@@ -240,7 +263,10 @@ def train():
                 history['total_loss'][i],
                 history['val_seg_loss'][i],
                 history['val_edge_loss'][i],
-                history['val_total_loss'][i]
+                history['val_total_loss'][i],
+                history['learning_rate'][i],
+                history['epoch_time_sec'][i],
+                history['gpu_mem_mb'][i]
             ])
     print(f"Statistics saved to {csv_path}")
 
