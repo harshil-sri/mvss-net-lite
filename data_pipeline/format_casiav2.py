@@ -13,8 +13,12 @@ def format_casiav2(images_dir: str, masks_dir: str, output_dir: str):
     # Find all images
     image_files = []
     for ext in ['*.jpg', '*.jpeg', '*.png', '*.tif', '*.tiff']:
-        image_files.extend(images_path.rglob(ext))
-        image_files.extend(images_path.rglob(ext.upper()))
+        for path in images_path.rglob(ext):
+            if not path.stem.endswith('_gt'):
+                image_files.append(path)
+        for path in images_path.rglob(ext.upper()):
+            if not path.stem.endswith('_gt'):
+                image_files.append(path)
         
     print(f"Found {len(image_files)} total images in {images_dir}. Processing...")
     
