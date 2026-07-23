@@ -22,8 +22,12 @@ def load_model():
         
     model = MVSSNetLite().to(device)
     
-    # Find the most recent checkpoint
-    checkpoints = glob.glob("model/checkpoints/*.pt")
+    # Robust path resolution for checkpoints
+    base_dir = os.path.dirname(__file__)
+    project_root = os.path.abspath(os.path.join(base_dir, "../../../"))
+    checkpoint_dir = os.path.join(project_root, "model", "checkpoints")
+    
+    checkpoints = glob.glob(os.path.join(checkpoint_dir, "*.pt"))
     if checkpoints:
         # Sort by modification time to get the latest
         latest_ckpt = max(checkpoints, key=os.path.getmtime)
