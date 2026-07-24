@@ -12,6 +12,7 @@ node_modules/
 .DS_Store
 model/checkpoints/*
 !model/checkpoints/.gitkeep
+!model/checkpoints/*_fp16.pt
 data_pipeline/raw/*
 !data_pipeline/raw/.gitkeep
 data_pipeline/processed/*
