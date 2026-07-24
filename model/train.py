@@ -11,6 +11,8 @@ from model.fusion import CBAMFusion
 from data_pipeline.dataset_loader import get_dataloader
 
 import argparse
+import random
+import numpy as np
 import torch.nn.functional as F
 
 class CombinedLoss(nn.Module):
@@ -64,6 +66,10 @@ SMOKE_TEST = args.smoke_test
 OVERFIT_BATCH = args.overfit_batch
 SMOKE_TEST_EPOCHS = 2
 SMOKE_TEST_BATCHES = 2
+
+# Bump LR automatically for overfit sanity checks to avoid step-starvation
+if OVERFIT_BATCH:
+    LEARNING_RATE = 1e-3
 
 
 def train():
@@ -146,11 +152,28 @@ def train():
     print("Starting training loop...")
     
     if OVERFIT_BATCH:
+        print("OVERFIT MODE: Setting seed for deterministic batch...")
+        torch.manual_seed(42)
+        random.seed(42)
+        np.random.seed(42)
+        
         print("OVERFIT MODE: Grabbing a single batch to overfit...")
         overfit_imgs, overfit_masks, overfit_edges = next(iter(train_loader))
         overfit_imgs = overfit_imgs.to(device)
         overfit_masks = overfit_masks.to(device)
         overfit_edges = overfit_edges.to(device)
+        
+        # Save these exact images so the user can test them
+        os.makedirs("reports/overfit_samples", exist_ok=True)
+        import torchvision
+        for i in range(overfit_imgs.size(0)):
+            # Convert back from normalized tensor to image
+            inv_normalize = torchvision.transforms.Normalize(
+                mean=[-0.485/0.229, -0.456/0.224, -0.406/0.225],
+                std=[1/0.229, 1/0.224, 1/0.225]
+            )
+            img = inv_normalize(overfit_imgs[i].cpu())
+            torchvision.utils.save_image(img, f"reports/overfit_samples/overfit_{i}.jpg")
 
     for epoch in range(start_epoch, total_epochs + 1):
         model.train()
