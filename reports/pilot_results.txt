@@ -1,0 +1,55 @@
+Extracting 20 held-out dense-text authentic images...
+Extraction complete. Found 20 images.
+
+==================================================
+STAGE 1 PILOT: CASIAv2 + DEFACTO (1 Epoch)
+==================================================
+Stage 1 Pilot complete. Loss curve saved to reports/pilot_stage1_loss.png
+
+==================================================
+STAGE 2 PILOT: RTM + MIDV500 (2 Epochs, Fresh Init)
+==================================================
+
+--- PROBE AT 0% (Untrained) ---
+Avg Max Prob: 0.7863 (Peak: 0.8417)
+Avg Hallucinated Pixels (>0.5): 14870.85
+Total Hallucinating Images (out of 20): 20
+---------------------------
+
+
+--- PROBE AT Epoch 1 - 50% through epoch ---
+Avg Max Prob: 0.4872 (Peak: 0.9850)
+Avg Hallucinated Pixels (>0.5): 9353.45
+Total Hallucinating Images (out of 20): 7
+---------------------------
+
+
+--- PROBE AT Epoch 1 - 100% complete ---
+Avg Max Prob: 0.5078 (Peak: 0.9626)
+Avg Hallucinated Pixels (>0.5): 8422.45
+Total Hallucinating Images (out of 20): 10
+---------------------------
+
+
+--- PROBE AT Epoch 2 - 50% through epoch ---
+Avg Max Prob: 0.4114 (Peak: 0.9781)
+Avg Hallucinated Pixels (>0.5): 4520.95
+Total Hallucinating Images (out of 20): 5
+---------------------------
+
+
+--- PROBE AT Epoch 2 - 100% complete ---
+Avg Max Prob: 0.3034 (Peak: 0.9799)
+Avg Hallucinated Pixels (>0.5): 3516.20
+Total Hallucinating Images (out of 20): 3
+---------------------------
+
+
+==================================================
+BAYAR NOISE BRANCH ABLATION TEST
+==================================================
+Average Loss (Intact BayarConv): 4.1021
+Average Loss (Zeroed BayarConv): 4.2108
+
+Difference: 0.1087
+CONCLUSION: Noise branch is contributing significantly to the predictions!
