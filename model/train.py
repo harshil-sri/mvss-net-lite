@@ -16,7 +16,7 @@ import numpy as np
 import torch.nn.functional as F
 
 class CombinedLoss(nn.Module):
-    def __init__(self, bce_weight=1.0, dice_weight=1.0, pos_weight_val=50.0, use_tversky=False):
+    def __init__(self, bce_weight=1.0, dice_weight=1.0, pos_weight_val='dynamic', use_tversky=False):
         super(CombinedLoss, self).__init__()
         self.bce_weight = bce_weight
         self.dice_weight = dice_weight
@@ -24,8 +24,14 @@ class CombinedLoss(nn.Module):
         self.use_tversky = use_tversky
 
     def forward(self, inputs, targets):
-        # Create pos_weight tensor on the same device as inputs
-        pos_weight = torch.tensor([self.pos_weight_val]).to(inputs.device)
+        if self.pos_weight_val == 'dynamic':
+            num_pos = targets.sum()
+            num_neg = targets.numel() - num_pos
+            # Calculate dynamic weight, bounded to prevent explosion on authentic images
+            weight = torch.clamp(num_neg / (num_pos + 1e-5), max=1000.0)
+            pos_weight = torch.tensor([weight], device=inputs.device)
+        else:
+            pos_weight = torch.tensor([self.pos_weight_val], device=inputs.device)
         
         # Calculate BCE loss with pos_weight
         bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, pos_weight=pos_weight)
@@ -112,9 +118,9 @@ def train():
     # 3. Loss functions
     # Using Combined BCE + Dice Loss with a heavy pos_weight (50.0) 
     # to severely penalize the model for missing the 1% forged pixels.
-    # This prevents the mode collapse where it just predicts all zeros.
-    seg_criterion = CombinedLoss(bce_weight=1.0, dice_weight=1.0, pos_weight_val=50.0)
-    edge_criterion = CombinedLoss(bce_weight=1.0, dice_weight=1.0, pos_weight_val=500.0, use_tversky=True)
+    # Initialize loss functions with dynamic pos_weight
+    seg_criterion = CombinedLoss(bce_weight=1.0, dice_weight=1.0, pos_weight_val='dynamic')
+    edge_criterion = CombinedLoss(bce_weight=1.0, dice_weight=1.0, pos_weight_val='dynamic', use_tversky=True)
     
     # 4. DataLoader
     print(f"Loading datasets: {DATASETS}...")
