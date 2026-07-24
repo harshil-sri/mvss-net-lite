@@ -76,8 +76,10 @@ def analyze_image(img_path: str, prediction_id: str):
     t1 = cv2.getTickCount()
     inference_time_ms = int((t1 - t0) * 1000 / cv2.getTickFrequency())
     
-    # Thresholding
-    mask_bin = (prob_seg > 0.5).astype(np.uint8) * 255
+    # Thresholding - raised to 0.97 because our new pos_weight=50.0 loss
+    # makes the raw probabilities hyper-sensitive. This filters out the
+    # false-positive text and tightens the mask around the true forgery.
+    mask_bin = (prob_seg > 0.97).astype(np.uint8) * 255
     edge_bin = (prob_edge > 0.5).astype(np.uint8) * 255
     
     # Resize mask back to original dimensions for saving and bbox calculations
