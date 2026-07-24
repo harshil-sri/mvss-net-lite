@@ -16,11 +16,12 @@ import numpy as np
 import torch.nn.functional as F
 
 class CombinedLoss(nn.Module):
-    def __init__(self, bce_weight=1.0, dice_weight=1.0, pos_weight_val=50.0):
+    def __init__(self, bce_weight=1.0, dice_weight=1.0, pos_weight_val=50.0, use_tversky=False):
         super(CombinedLoss, self).__init__()
         self.bce_weight = bce_weight
         self.dice_weight = dice_weight
         self.pos_weight_val = pos_weight_val
+        self.use_tversky = use_tversky
 
     def forward(self, inputs, targets):
         # Create pos_weight tensor on the same device as inputs
@@ -29,16 +30,24 @@ class CombinedLoss(nn.Module):
         # Calculate BCE loss with pos_weight
         bce_loss = F.binary_cross_entropy_with_logits(inputs, targets, pos_weight=pos_weight)
         
-        # Calculate Dice loss (expects probabilities)
+        # Calculate Region loss (expects probabilities)
         probs = torch.sigmoid(inputs)
         probs_flat = probs.view(-1)
         targets_flat = targets.view(-1)
         
-        smooth = 1e-5
-        intersection = (probs_flat * targets_flat).sum()
-        dice_loss = 1 - ((2. * intersection + smooth) / (probs_flat.sum() + targets_flat.sum() + smooth))
+        smooth = 1e-6
+        if self.use_tversky:
+            alpha = 0.3
+            beta = 0.7
+            intersection = (probs_flat * targets_flat).sum()
+            fps = (probs_flat * (1 - targets_flat)).sum()
+            fns = ((1 - probs_flat) * targets_flat).sum()
+            region_loss = 1 - ((intersection + smooth) / (intersection + alpha * fps + beta * fns + smooth))
+        else:
+            intersection = (probs_flat * targets_flat).sum()
+            region_loss = 1 - ((2. * intersection + smooth) / (probs_flat.sum() + targets_flat.sum() + smooth))
         
-        return (self.bce_weight * bce_loss) + (self.dice_weight * dice_loss)
+        return (self.bce_weight * bce_loss) + (self.dice_weight * region_loss)
 
 # =============================================================================
 # HYPERPARAMETERS & CONFIG
@@ -70,6 +79,10 @@ SMOKE_TEST_BATCHES = 2
 # Bump LR automatically for overfit sanity checks to avoid step-starvation
 if OVERFIT_BATCH:
     LEARNING_RATE = 1e-3
+    print("OVERFIT MODE: Setting global seed for deterministic split and batch...")
+    torch.manual_seed(42)
+    random.seed(42)
+    np.random.seed(42)
 
 
 def train():
@@ -101,7 +114,7 @@ def train():
     # to severely penalize the model for missing the 1% forged pixels.
     # This prevents the mode collapse where it just predicts all zeros.
     seg_criterion = CombinedLoss(bce_weight=1.0, dice_weight=1.0, pos_weight_val=50.0)
-    edge_criterion = CombinedLoss(bce_weight=1.0, dice_weight=1.0, pos_weight_val=50.0)
+    edge_criterion = CombinedLoss(bce_weight=1.0, dice_weight=1.0, pos_weight_val=500.0, use_tversky=True)
     
     # 4. DataLoader
     print(f"Loading datasets: {DATASETS}...")
@@ -152,28 +165,33 @@ def train():
     print("Starting training loop...")
     
     if OVERFIT_BATCH:
-        print("OVERFIT MODE: Setting seed for deterministic batch...")
-        torch.manual_seed(42)
-        random.seed(42)
-        np.random.seed(42)
-        
-        print("OVERFIT MODE: Grabbing a single batch to overfit...")
-        overfit_imgs, overfit_masks, overfit_edges = next(iter(train_loader))
+        print("OVERFIT MODE: Grabbing a single batch of 8 perfectly manipulated images...")
+        manip_imgs, manip_masks, manip_edges = [], [], []
+        for imgs, masks, edges in train_loader:
+            for i in range(imgs.size(0)):
+                if masks[i].sum() > 0:
+                    manip_imgs.append(imgs[i])
+                    manip_masks.append(masks[i])
+                    manip_edges.append(edges[i])
+                if len(manip_imgs) == 8:
+                    break
+            if len(manip_imgs) == 8:
+                break
+                
+        overfit_imgs = torch.stack(manip_imgs)
+        overfit_masks = torch.stack(manip_masks)
+        overfit_edges = torch.stack(manip_edges)
         overfit_imgs = overfit_imgs.to(device)
         overfit_masks = overfit_masks.to(device)
         overfit_edges = overfit_edges.to(device)
         
-        # Save these exact images so the user can test them
+        # Save these exact images and masks so the user can test them
         os.makedirs("reports/overfit_samples", exist_ok=True)
         import torchvision
         for i in range(overfit_imgs.size(0)):
-            # Convert back from normalized tensor to image
-            inv_normalize = torchvision.transforms.Normalize(
-                mean=[-0.485/0.229, -0.456/0.224, -0.406/0.225],
-                std=[1/0.229, 1/0.224, 1/0.225]
-            )
-            img = inv_normalize(overfit_imgs[i].cpu())
-            torchvision.utils.save_image(img, f"reports/overfit_samples/overfit_{i}.jpg")
+            # Dataloader outputs in [0, 1] range, no ImageNet inv_normalize needed
+            torchvision.utils.save_image(overfit_imgs[i].cpu(), f"reports/overfit_samples/overfit_{i}.jpg")
+            torchvision.utils.save_image(overfit_masks[i].cpu().float(), f"reports/overfit_samples/overfit_{i}_gt.png")
 
     for epoch in range(start_epoch, total_epochs + 1):
         model.train()
