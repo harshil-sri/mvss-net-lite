@@ -122,9 +122,12 @@ class ForgeryDataset(Dataset):
                 edge_pil = edge_pil.crop((left, top, left + new_w, top + new_h))
 
             # Resize to crop_size
+            import torch.nn.functional as F
             img_pil = img_pil.resize((self.crop_size, self.crop_size), Image.BILINEAR)
-            mask_pil = mask_pil.resize((self.crop_size, self.crop_size), Image.NEAREST)
-            edge_pil = edge_pil.resize((self.crop_size, self.crop_size), Image.NEAREST)
+            mask_t = torch.from_numpy(np.array(mask_pil)).float().unsqueeze(0).unsqueeze(0)
+            mask_pil = Image.fromarray(F.adaptive_max_pool2d(mask_t, (self.crop_size, self.crop_size)).squeeze().numpy().astype(np.uint8))
+            edge_t = torch.from_numpy(np.array(edge_pil)).float().unsqueeze(0).unsqueeze(0)
+            edge_pil = Image.fromarray(F.adaptive_max_pool2d(edge_t, (self.crop_size, self.crop_size)).squeeze().numpy().astype(np.uint8))
 
             if random.random() < 0.5: # color jitter
                 brightness = random.uniform(0.8, 1.2)
@@ -137,9 +140,12 @@ class ForgeryDataset(Dataset):
                 
         else:
             # just resize for test
+            import torch.nn.functional as F
             img_pil = img_pil.resize((self.crop_size, self.crop_size), Image.BILINEAR)
-            mask_pil = mask_pil.resize((self.crop_size, self.crop_size), Image.NEAREST)
-            edge_pil = edge_pil.resize((self.crop_size, self.crop_size), Image.NEAREST)
+            mask_t = torch.from_numpy(np.array(mask_pil)).float().unsqueeze(0).unsqueeze(0)
+            mask_pil = Image.fromarray(F.adaptive_max_pool2d(mask_t, (self.crop_size, self.crop_size)).squeeze().numpy().astype(np.uint8))
+            edge_t = torch.from_numpy(np.array(edge_pil)).float().unsqueeze(0).unsqueeze(0)
+            edge_pil = Image.fromarray(F.adaptive_max_pool2d(edge_t, (self.crop_size, self.crop_size)).squeeze().numpy().astype(np.uint8))
 
         # Convert back to numpy
         img = np.array(img_pil)
@@ -156,7 +162,9 @@ class ForgeryDataset(Dataset):
         
         return img_tensor, mask_tensor, edge_tensor
 
-def get_dataloader(dataset_names, batch_size=4, is_train=True, return_splits=False):
+from torch.utils.data import WeightedRandomSampler
+
+def get_dataloader(dataset_names, batch_size=4, is_train=True, return_splits=False, use_balanced_sampler=False):
     # wrapper to get the dataloader easily
     if isinstance(dataset_names, str):
         dataset_names = [dataset_names]
@@ -171,13 +179,57 @@ def get_dataloader(dataset_names, batch_size=4, is_train=True, return_splits=Fal
         
         train_ds, val_ds, test_ds = random_split(ds, [train_size, val_size, test_size])
         
-        # NOTE: Ideally val and test shouldn't have augmentations. For now we use the same dataset object.
-        train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=0)
+        sampler = None
+        shuffle = True
+        if use_balanced_sampler and is_train:
+            shuffle = False
+            # Compute weights for the training split
+            weights = []
+            for idx in train_ds.indices:
+                img_path, mask_path = ds.samples[idx]
+                is_forged = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE).sum() > 0
+                is_rtm = 'RTM' in img_path
+                is_midv = 'MIDV500' in img_path
+                
+                # We want 1/3 RTM Forged, 1/3 RTM Authentic, 1/3 MIDV500 Authentic
+                if is_rtm and is_forged:
+                    weights.append(1.0 / 6000) # RTM Forged count
+                elif is_rtm and not is_forged:
+                    weights.append(1.0 / 3000) # RTM Authentic count
+                elif is_midv:
+                    weights.append(1.0 / 15050) # MIDV500 Authentic count
+                else:
+                    weights.append(1.0) # Fallback for Stage 1 datasets
+                    
+            sampler = WeightedRandomSampler(weights, num_samples=len(weights), replacement=True)
+        
+        train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=shuffle, sampler=sampler, num_workers=0)
         val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False, num_workers=0)
         test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False, num_workers=0)
         return train_loader, val_loader, test_loader
         
-    return DataLoader(ds, batch_size=batch_size, shuffle=is_train, num_workers=0)
+    sampler = None
+    shuffle = is_train
+    if use_balanced_sampler and is_train:
+        shuffle = False
+        weights = []
+        for img_path, mask_path in ds.samples:
+            is_forged = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE).sum() > 0
+            is_rtm = 'RTM' in img_path
+            is_midv = 'MIDV500' in img_path
+            
+            if is_rtm and is_forged:
+                weights.append(1.0 / 6000)
+            elif is_rtm and not is_forged:
+                weights.append(1.0 / 3000)
+            elif is_midv:
+                weights.append(1.0 / 15050)
+            else:
+                weights.append(1.0)
+                
+        sampler = WeightedRandomSampler(weights, num_samples=len(weights), replacement=True)
+        
+    return DataLoader(ds, batch_size=batch_size, shuffle=shuffle, sampler=sampler, num_workers=0)
 
 if __name__ == '__main__':
     # test script to make sure it works and generate progress update
