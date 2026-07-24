@@ -14,10 +14,10 @@ set -e
 # echo "Formatting MIDV-500..."
 # python data_pipeline/format_midv500.py --input data/MIDV-500/midv500
 
-# echo "=== STAGE 1: TRAINING ON CASIAv2 & DEFACTO ==="
-# python -m model.train --datasets CASIAv2 DEFACTO --epochs 25 --stage-name stage1
+echo "=== STAGE 1: TRAINING ON CASIAv2 & DEFACTO ==="
+python -m model.train --datasets CASIAv2 DEFACTO --epochs 25 --stage-name stage1 --lr 1e-4
 
 echo "=== STAGE 2: FINE-TUNING ON RTM & MIDV500 ==="
-python -m model.train --datasets RTM MIDV500 --epochs 25 --stage-name stage2 --init-weights model/checkpoints/stage1_mvss_lite_ep25.pt
+python -m model.train --datasets RTM MIDV500 --epochs 25 --stage-name stage2 --init-weights model/checkpoints/stage1_mvss_lite_ep25.pt --lr 1e-5
 
 echo "=== ALL DONE! GOOD MORNING! ==="

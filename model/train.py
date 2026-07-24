@@ -61,6 +61,7 @@ SAVE_EVERY = 5
 parser = argparse.ArgumentParser(description="Train MVSS-Net Lite")
 parser.add_argument("--datasets", nargs='+', default=['CASIAv2', 'DEFACTO'], help="Datasets to train on")
 parser.add_argument("--epochs", type=int, default=50, help="Number of epochs to train")
+parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate")
 parser.add_argument("--smoke-test", action='store_true', help="Run a quick 2-batch smoke test")
 parser.add_argument("--overfit-batch", action='store_true', help="Overfit on a single batch for rapid prototyping")
 parser.add_argument("--stage-name", type=str, default="stage1", help="Name prefix for saving plots and models")
@@ -70,6 +71,7 @@ args = parser.parse_args()
 
 DATASETS = args.datasets
 EPOCHS = args.epochs
+LEARNING_RATE = args.lr
 SMOKE_TEST = args.smoke_test
 OVERFIT_BATCH = args.overfit_batch
 SMOKE_TEST_EPOCHS = 2
@@ -108,17 +110,36 @@ def train():
             
         print("Weights loaded successfully!")
     
-    # 3. Loss functions
-    # Using Combined BCE + Dice Loss with a heavy pos_weight (50.0) 
-    # to severely penalize the model for missing the 1% forged pixels.
-    # Initialize loss functions with fixed dataset-level pos_weight
-    seg_criterion = CombinedLoss(bce_weight=1.0, dice_weight=1.0, pos_weight_val=124.0)
-    edge_criterion = CombinedLoss(bce_weight=1.0, dice_weight=1.0, pos_weight_val=2495.0, use_tversky=True)
-    
-    # 4. DataLoader
+    # 3. DataLoader
     print(f"Loading datasets: {DATASETS}...")
     train_loader, val_loader, test_loader = get_dataloader(DATASETS, batch_size=BATCH_SIZE, is_train=True, return_splits=True)
     print(f"Dataset splits -> Train: {len(train_loader)} batches | Val: {len(val_loader)} batches | Test: {len(test_loader)} batches")
+
+    # 4. Loss functions & Dataset Scanner
+    print(f"Scanning dataset {DATASETS} to compute global pixel statistics (this may take a minute)...")
+    total_mask_pos, total_mask_neg = 0.0, 0.0
+    total_edge_pos, total_edge_neg = 0.0, 0.0
+    
+    # We only scan if not overfitting to a single batch, otherwise just use 50.0 / 500.0 as fallbacks
+    if OVERFIT_BATCH:
+        seg_pos_weight = 124.0
+        edge_pos_weight = 2495.0
+    else:
+        for i, (imgs, masks, edges) in enumerate(train_loader):
+            total_mask_pos += masks.sum().item()
+            total_mask_neg += (masks.numel() - masks.sum().item())
+            total_edge_pos += edges.sum().item()
+            total_edge_neg += (edges.numel() - edges.sum().item())
+            if SMOKE_TEST and i > 2:
+                break
+        
+        seg_pos_weight = total_mask_neg / max(total_mask_pos, 1.0)
+        edge_pos_weight = total_edge_neg / max(total_edge_pos, 1.0)
+        
+    print(f"Global Stats -> Seg pos_weight: {seg_pos_weight:.2f} | Edge pos_weight: {edge_pos_weight:.2f}")
+
+    seg_criterion = CombinedLoss(bce_weight=1.0, dice_weight=1.0, pos_weight_val=seg_pos_weight)
+    edge_criterion = CombinedLoss(bce_weight=1.0, dice_weight=1.0, pos_weight_val=edge_pos_weight, use_tversky=True)
     
     # Ensure output dirs exist
     os.makedirs('model/checkpoints', exist_ok=True)
