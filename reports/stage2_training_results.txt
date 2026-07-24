@@ -1,0 +1,25 @@
+Extracting domain-split probe images (RTM Authentic Tabular & RTM Forged Tabular)...
+Extraction complete. Found 20 RTM Authentic Tabular and 20 RTM Forged Tabular.
+
+==================================================
+STAGE 2 TRAINING: RTM + MIDV500 (5 Epochs, Balanced Sampler, Mask Fix)
+==================================================
+
+--- FP PROBE AT 0% (Untrained) (RTM Authentic Tabular) ---
+Avg Max Prob: 0.4836 (Peak: 0.4852 on Image #2)
+Threshold 0.5: 0/20 hallucinating (Avg Pixels: 0.00)
+Threshold 0.6: 0/20 hallucinating (Avg Pixels: 0.00)
+Threshold 0.7: 0/20 hallucinating (Avg Pixels: 0.00)
+Threshold 0.8: 0/20 hallucinating (Avg Pixels: 0.00)
+Threshold 0.9: 0/20 hallucinating (Avg Pixels: 0.00)
+---------------------------
+
+
+--- TP PROBE AT 0% (Untrained) (RTM FORGED TABULAR) ---
+Threshold 0.5: Avg TP Pixels: 0.00
+Threshold 0.6: Avg TP Pixels: 0.00
+Threshold 0.7: Avg TP Pixels: 0.00
+Threshold 0.8: Avg TP Pixels: 0.00
+Threshold 0.9: Avg TP Pixels: 0.00
+---------------------------
+
