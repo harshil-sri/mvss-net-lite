@@ -1,0 +1,14 @@
+A couple of things worth tightening before you commit to a fix, though.
+
+"Dragging the entire architecture down" is stronger than what your data shows. Look at your own seg curve again — it's not plateaued, it's still steeply descending at epoch 300 (roughly 0.45→0.2 in the last 50 epochs, if anything accelerating). That's not the shape of something being held back by a dead anchor; that's a branch still making active progress that probably keeps going with more epochs regardless of the edge branch's state. A more accurate read: the edge branch is currently a dead, non-contributing component, not necessarily an actively harmful one. Worth keeping that distinction, because it changes the urgency — you don't need to panic-fix this to unblock seg convergence, you need to fix it because you need real edge supervision for the actual RTM training run.
+
+Pos_weight probably isn't the only thing suppressing the gradient here — check your Dice epsilon. Your edge loss plateaued at almost exactly ~1.0, which is suspicious: that's the ceiling value of Dice loss when the model predicts near-zero everywhere. Dice's soft numerator/denominator both add a smoothing epsilon (commonly 1.0) to avoid divide-by-zero. At your scale — 119 true positive pixels, ~0 predicted positive pixels — if epsilon is comparable to or larger than the positive pixel count, the loss surface is nearly flat right where your model is sitting, meaning tiny nudges in prediction produce almost no change in loss or gradient. That would independently stall training even with a correctly-tuned pos_weight. Check what epsilon your Dice implementation uses, and consider dropping it (e.g. to 1e-6) or switching to Tversky loss for the edge branch specifically, which lets you weight false negatives independently of the smoothing term and is generally better suited to this kind of extreme sparsity than vanilla Dice.
+
+Your overfit batch is quietly working against you. 5 of 8 images being fully authentic means only 3 images in the batch are contributing any positive-class gradient at all for the edge branch. For an architecture capacity sanity check specifically, that's an unnecessary handicap — construct that batch deliberately (8/8 manipulated) rather than random-sampling, so you're testing "can it learn boundaries" rather than "can it learn boundaries while also getting diluted by all-negative examples."
+
+My suggested order:
+
+Fix Dice epsilon first — cheapest change, and if this alone unsticks it you've learned something more precise than "just needed more pos_weight."
+Raise pos_weight to ~500 (or compute it dynamically per-batch from actual pixel counts, capped to avoid blowup on the all-negative images) at the same time.
+Fix the batch to be 8/8 manipulated for this specific sanity check.
+Re-run overfit. If edge loss now crashes the way seg loss did — confirmed, ship the fix into the real training config.

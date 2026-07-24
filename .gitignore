@@ -12,6 +12,7 @@ node_modules/
 .DS_Store
 model/checkpoints/*
 !model/checkpoints/.gitkeep
+!model/checkpoints/*_fp16.pt
 data_pipeline/raw/*
 !data_pipeline/raw/.gitkeep
 data_pipeline/processed/*
@@ -34,3 +35,8 @@ feedback.txt
 reports/*.png
 !reports/loss_curve.png
 audit_report.md
+reports/old_architecture_diagram.jpg
+data/*
+!data/.gitkeep
+run_pipeline.sh
+*.zip

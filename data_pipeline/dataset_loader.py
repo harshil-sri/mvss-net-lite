@@ -156,12 +156,27 @@ class ForgeryDataset(Dataset):
         
         return img_tensor, mask_tensor, edge_tensor
 
-def get_dataloader(dataset_names, batch_size=4, is_train=True):
+def get_dataloader(dataset_names, batch_size=4, is_train=True, return_splits=False):
     # wrapper to get the dataloader easily
     if isinstance(dataset_names, str):
         dataset_names = [dataset_names]
         
     ds = ForgeryDataset('data_pipeline/raw', dataset_names, is_train=is_train)
+    
+    if return_splits:
+        total = len(ds)
+        train_size = int(0.8 * total)
+        val_size = int(0.1 * total)
+        test_size = total - train_size - val_size
+        
+        train_ds, val_ds, test_ds = random_split(ds, [train_size, val_size, test_size])
+        
+        # NOTE: Ideally val and test shouldn't have augmentations. For now we use the same dataset object.
+        train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=0)
+        val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False, num_workers=0)
+        test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False, num_workers=0)
+        return train_loader, val_loader, test_loader
+        
     return DataLoader(ds, batch_size=batch_size, shuffle=is_train, num_workers=0)
 
 if __name__ == '__main__':
