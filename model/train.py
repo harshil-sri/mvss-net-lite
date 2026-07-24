@@ -52,6 +52,7 @@ parser = argparse.ArgumentParser(description="Train MVSS-Net Lite")
 parser.add_argument("--datasets", nargs='+', default=['CASIAv2', 'DEFACTO'], help="Datasets to train on")
 parser.add_argument("--epochs", type=int, default=50, help="Number of epochs to train")
 parser.add_argument("--smoke-test", action='store_true', help="Run a quick 2-batch smoke test")
+parser.add_argument("--overfit-batch", action='store_true', help="Overfit on a single batch for rapid prototyping")
 parser.add_argument("--stage-name", type=str, default="stage1", help="Name prefix for saving plots and models")
 parser.add_argument("--init-weights", type=str, default=None, help="Path to checkpoint to initialize weights from")
 parser.add_argument("--resume", action='store_true', help="Resume training from init_weights and append to history")
@@ -60,6 +61,7 @@ args = parser.parse_args()
 DATASETS = args.datasets
 EPOCHS = args.epochs
 SMOKE_TEST = args.smoke_test
+OVERFIT_BATCH = args.overfit_batch
 SMOKE_TEST_EPOCHS = 2
 SMOKE_TEST_BATCHES = 2
 
@@ -142,6 +144,14 @@ def train():
             print(f"Loaded existing history from {csv_path}")
     
     print("Starting training loop...")
+    
+    if OVERFIT_BATCH:
+        print("OVERFIT MODE: Grabbing a single batch to overfit...")
+        overfit_imgs, overfit_masks, overfit_edges = next(iter(train_loader))
+        overfit_imgs = overfit_imgs.to(device)
+        overfit_masks = overfit_masks.to(device)
+        overfit_edges = overfit_edges.to(device)
+
     for epoch in range(start_epoch, total_epochs + 1):
         model.train()
         
@@ -154,14 +164,20 @@ def train():
         epoch_total_loss = 0.0
         batches_processed = 0
         
-        for batch_idx, (imgs, masks, edges) in enumerate(train_loader):
+        if OVERFIT_BATCH:
+            batch_iterator = [(overfit_imgs, overfit_masks, overfit_edges)]
+        else:
+            batch_iterator = train_loader
+            
+        for batch_idx, (imgs, masks, edges) in enumerate(batch_iterator):
             if SMOKE_TEST and batches_processed >= SMOKE_TEST_BATCHES:
                 break
                 
-            # Move to device
-            imgs = imgs.to(device)
-            masks = masks.to(device)
-            edges = edges.to(device)
+            if not OVERFIT_BATCH:
+                # Move to device
+                imgs = imgs.to(device)
+                masks = masks.to(device)
+                edges = edges.to(device)
             
             # Zero grads
             optimizer.zero_grad()
@@ -205,10 +221,16 @@ def train():
         val_seg_loss, val_edge_loss, val_total_loss = 0.0, 0.0, 0.0
         val_batches = 0
         with torch.no_grad():
-            for v_imgs, v_masks, v_edges in val_loader:
+            if OVERFIT_BATCH:
+                val_iterator = [(overfit_imgs, overfit_masks, overfit_edges)]
+            else:
+                val_iterator = val_loader
+                
+            for v_imgs, v_masks, v_edges in val_iterator:
                 if SMOKE_TEST and val_batches >= SMOKE_TEST_BATCHES:
                     break
-                v_imgs, v_masks, v_edges = v_imgs.to(device), v_masks.to(device), v_edges.to(device)
+                if not OVERFIT_BATCH:
+                    v_imgs, v_masks, v_edges = v_imgs.to(device), v_masks.to(device), v_edges.to(device)
                 v_pred_seg, v_pred_edge = model(v_imgs)
                 vl_seg = seg_criterion(v_pred_seg, v_masks)
                 vl_edge = edge_criterion(v_pred_edge, v_edges)
