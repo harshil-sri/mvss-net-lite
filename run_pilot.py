@@ -63,10 +63,14 @@ def run_probe(model, probe_tensor, step_name):
             max_probs.append(prob.max())
             hallucinated_pixels.append(np.sum(prob > 0.5))
             
+    hallucinating_indices = [idx for idx, pixels in enumerate(hallucinated_pixels) if pixels > 0]
+    
     log_and_print(f"\n--- PROBE AT {step_name} ---")
     log_and_print(f"Avg Max Prob: {np.mean(max_probs):.4f} (Peak: {np.max(max_probs):.4f})")
     log_and_print(f"Avg Hallucinated Pixels (>0.5): {np.mean(hallucinated_pixels):.2f}")
-    log_and_print(f"Total Hallucinating Images (out of {probe_tensor.size(0)}): {sum(1 for x in hallucinated_pixels if x > 0)}")
+    log_and_print(f"Total Hallucinating Images: {len(hallucinating_indices)}/20")
+    if hallucinating_indices:
+        log_and_print(f"Hallucinating Image Indices: {hallucinating_indices}")
     log_and_print("---------------------------\n")
 
 def run_stage1():
