@@ -120,7 +120,7 @@ def train():
     total_mask_pos, total_mask_neg = 0.0, 0.0
     total_edge_pos, total_edge_neg = 0.0, 0.0
     
-    # We only scan if not overfitting to a single batch, otherwise just use 50.0 / 500.0 as fallbacks
+    # We only scan if not overfitting to a single batch, otherwise just use fallbacks
     if OVERFIT_BATCH:
         seg_pos_weight = 124.0
         edge_pos_weight = 2495.0
