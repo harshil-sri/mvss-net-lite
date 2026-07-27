@@ -40,3 +40,7 @@ data/*
 !data/.gitkeep
 run_pipeline.sh
 *.zip
+/*_task.md
+/audit_report.md
+/stage1_*.md
+*.tar.gz
