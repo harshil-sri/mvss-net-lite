@@ -29,8 +29,8 @@ def load_model():
     
     checkpoints = glob.glob(os.path.join(checkpoint_dir, "*.pt"))
     if checkpoints:
-        # Sort by modification time to get the latest
-        latest_ckpt = max(checkpoints, key=os.path.getmtime)
+        # Explicitly load epoch 5 which has the lowest val loss
+        latest_ckpt = os.path.join(checkpoint_dir, "stage2_mvss_lite_ep5.pt")
         print(f"Loading checkpoint: {latest_ckpt}")
         checkpoint = torch.load(latest_ckpt, map_location=device)
         model.load_state_dict(checkpoint['model_state_dict'])
