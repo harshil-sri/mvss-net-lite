@@ -1,11 +1,44 @@
-Solid diagnostic work — the synthetic-line test is exactly the right way to isolate this, and the numbers you got out of it are internally consistent: NEAREST dropped ~87% of a known line, bilinear swelled it to ~2x its true width, and the block-wise max pool landed close to the actual line width. That's a real fix, not just an assumption swap.
+Here's the merged, sequential handoff — manifest build first (it blocks everything else), then Stage 1's rerun on top of it.
 
-One thing worth noting: the arithmetic on the new pos_weight actually checks out against your earlier scan. Back-calculating from 1058.38 and 24,745 positive pixels gives an implied negative-pixel count that, applied to the *old* 6216.84 weight, predicts an original positive count of ~4,213 — almost exactly the 4,216 you reported two steps ago. That's a good sign the two scans are apples-to-apples (same dataset, same denominator), not comparing a full scan to a subset scan.
+Task: Build a single unified manifest across all four datasets, wire it into the dataloader, then run Stage 1 (CASIAv2 + DEFACTO) for real on the corrected pipeline. Do not skip or reorder steps.
 
-Two things worth confirming before trusting the run that's now in flight:
+STEP 1 — Build the manifest
+Write a one-time script that scans the full set of raw data directories for all four datasets used anywhere in this project — CASIAv2, DEFACTO, RTM, MIDV500 — as a single unified list of (image_path, mask_path, dataset_name) entries. Do not scan per-dataset; one combined list, one split.
 
-**Did the seg head get checked too?** The mask-resize bug was specifically about *thin* boundaries — that's why the edge head took the hit. The segmentation mask covers a whole forged region, which is a blob, not a thin line, so it's plausible the seg mask was barely affected by NEAREST in the first place. But "plausible" isn't "confirmed." Worth a quick positive-pixel-count comparison on the seg mask alone (old pipeline vs new) — if it barely moved, seg's `230.63` pos_weight is still valid and you're done. If it moved meaningfully, that weight is now stale too and the current run is only half-corrected.
+Shuffle with a fixed seed and split 80/10/10 into train/val/test.
+Save as manifest.json: three lists (train, val, test), each entry containing image path, mask path, and dataset tag.
+Report total counts per split, and per-dataset counts within each split (so it's visible each dataset is represented across train/val/test, not accidentally dropped from one).
 
-**This is a much bigger swing than anything tested so far.** The earlier pos_weight experiment was a 20% cut and it moved the needle. This is an 83% cut (6216.84 → 1058.38) — four times larger a change than what you have any data on. That makes it very plausible you're now looking at an overcorrection risk in the *other* direction: with the penalty for missing a positive pixel so much lower, the model may start under-predicting on real forgeries, not just stopping the false-positive hallucination. When the epoch 3/5 results come in, don't just look at the tabular authentic/forged hallucination counts you set up — also check recall on the broader RTM-forged set (are true positives still being caught, or is TP pixel count from the earlier sweep now dropping too). A fix that solves the FP problem by making the network go quiet everywhere isn't actually a win.
+STEP 2 — Rewire get_dataloader
+In data_pipeline/dataset_loader.py, rewrite get_dataloader(dataset_names, ...) to:
 
-Everything else — the block-wise max pool, reverting rotation to NEAREST to avoid introducing new blur, restoring the `>127` threshold since max pooling preserves the original 0/255 values cleanly — is the right call. No changes needed there.
+Load manifest.json once.
+Filter the requested split (train/val/test) down to only entries matching dataset_names.
+Build the Dataset/DataLoader from those fixed paths.
+Remove the random_split call entirely from this path — no dataset should ever be split at request time again, only filtered from the pre-built manifest.
+Leave get_splits() alone only if nothing else still depends on it; if something does, redirect it to the manifest too rather than leaving two competing split mechanisms in the codebase.
+
+STEP 3 — Verify no leakage, cheaply
+Run a quick check confirming zero overlap between manifest.json's train/val/test lists (trivial by construction, but confirm the file-writing/loading logic didn't introduce a bug — e.g. duplicate paths across splits). Report the result.
+
+STEP 4 — Confirm CASIAv2 + DEFACTO are reachable through the new pipeline
+Call get_dataloader(['CASIAv2', 'DEFACTO'], is_train=True, return_splits=True) once and confirm it returns non-empty train/val/test loaders pulling only from the manifest's CASIAv2/DEFACTO entries. Report the batch counts.
+
+STEP 5 — Smoke test Stage 1
+python -m model.train --datasets CASIAv2 DEFACTO --smoke-test --stage-name stage1. Confirm it runs end to end with no errors on the new manifest-based pipeline.
+
+STEP 6 — Overfit sanity check
+python -m model.train --datasets CASIAv2 DEFACTO --overfit-batch --stage-name stage1_overfit. Confirm loss crashes toward near-zero (not stuck ~2.7-2.8) — this re-verifies the ImageNet-pretrained backbone is actually working for this dataset combination, same check that originally caught the random-init bug.
+
+STEP 7 — Full Stage 1 training
+If Step 6 passes: python -m model.train --datasets CASIAv2 DEFACTO --epochs 50 --stage-name stage1. Let pos_weight auto-scan as the script already does. Report the scanned seg/edge pos_weight values.
+
+STEP 8 — Domain-split specificity probe
+Once checkpoints exist at epoch 10-15, run a CASIAv2-vs-DEFACTO specificity probe (same design as the earlier RTM-vs-MIDV500 one): check whether authentic CASIAv2 images get falsely flagged as forged, and whether that error rate looks suspiciously different from CASIAv2-forged detection accuracy. This checks whether the model is using dataset-domain as a shortcut (DEFACTO being 100% forged makes this the same risk category as the earlier MIDV500 bug).
+
+Report the results.
+
+STEP 9 — Stop and report
+Do not chain into Stage 2 (--init-weights / --resume) yet. Report all results from Steps 1-8 and wait for review before deciding whether to restart Stage 2 from this Stage 1 checkpoint.
+
+Explicitly out of scope for this handoff: building a CASIAv2/DEFACTO balanced sampler preemptively (wait for Step 8's evidence first — don't build a fix for a problem not yet confirmed to exist), any Tversky tuning, and touching the Stage 2 manifest-fix run already in progress — these run independently.

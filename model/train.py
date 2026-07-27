@@ -1,4 +1,6 @@
 import os
+import shutil
+import glob
 import time
 import torch
 import torch.nn as nn
@@ -67,6 +69,8 @@ parser.add_argument("--overfit-batch", action='store_true', help="Overfit on a s
 parser.add_argument("--stage-name", type=str, default="stage1", help="Name prefix for saving plots and models")
 parser.add_argument("--init-weights", type=str, default=None, help="Path to checkpoint to initialize weights from")
 parser.add_argument("--resume", action='store_true', help="Resume training from init_weights and append to history")
+parser.add_argument("--use-balanced-sampler", action='store_true', help="Enable WeightedRandomSampler for dataset balancing")
+
 args = parser.parse_args()
 
 DATASETS = args.datasets
@@ -112,7 +116,7 @@ def train():
     
     # 3. DataLoader
     print(f"Loading datasets: {DATASETS}...")
-    train_loader, val_loader, test_loader = get_dataloader(DATASETS, batch_size=BATCH_SIZE, is_train=True, return_splits=True)
+    train_loader, val_loader, test_loader = get_dataloader(DATASETS, batch_size=BATCH_SIZE, is_train=True, return_splits=True, use_balanced_sampler=args.use_balanced_sampler)
     print(f"Dataset splits -> Train: {len(train_loader)} batches | Val: {len(val_loader)} batches | Test: {len(test_loader)} batches")
 
     # 4. Loss functions & Dataset Scanner
@@ -212,6 +216,10 @@ def train():
             # Dataloader outputs in [0, 1] range, no ImageNet inv_normalize needed
             torchvision.utils.save_image(overfit_imgs[i].cpu(), f"reports/overfit_samples/overfit_{i}.jpg")
             torchvision.utils.save_image(overfit_masks[i].cpu().float(), f"reports/overfit_samples/overfit_{i}_gt.png")
+
+    best_val_loss = float('inf')
+    best_checkpoint_path = None
+    saved_checkpoints = []
 
     for epoch in range(start_epoch, total_epochs + 1):
         model.train()
@@ -315,6 +323,19 @@ def train():
         print(f"TRAIN -> Avg Seg: {avg_seg:.4f} | Avg Edge: {avg_edge:.4f} | Avg Total: {avg_total:.4f}")
         print(f"VAL   -> Avg Seg: {avg_val_seg:.4f} | Avg Edge: {avg_val_edge:.4f} | Avg Total: {avg_val_total:.4f}\n")
         
+        import csv
+        csv_path = f"reports/{args.stage_name}_history.csv"
+        file_exists = os.path.exists(csv_path)
+        with open(csv_path, 'a', newline='') as f:
+            writer = csv.writer(f)
+            if not file_exists:
+                writer.writerow(['epoch', 'train_seg_loss', 'train_edge_loss', 'train_total_loss', 'val_seg_loss', 'val_edge_loss', 'val_total_loss', 'learning_rate', 'epoch_time_sec', 'gpu_mem_mb'])
+            writer.writerow([
+                epoch, avg_seg, avg_edge, avg_total,
+                avg_val_seg, avg_val_edge, avg_val_total,
+                optimizer.param_groups[0]['lr'], epoch_duration, gpu_mem
+            ])
+            
         history['epoch'].append(epoch)
         history['seg_loss'].append(avg_seg)
         history['edge_loss'].append(avg_edge)
@@ -330,6 +351,13 @@ def train():
         
         # Save checkpoint
         if epoch % SAVE_EVERY == 0 or epoch == total_epochs:
+            free_space_gb = shutil.disk_usage("/").free / (1024**3)
+            if free_space_gb < 15.0:
+                print(f"CRITICAL WARNING: Free disk space dropped to {free_space_gb:.2f}GB! Halting training to prevent crash.")
+                with open("reports/DISK_FULL_WARNING.txt", "w") as f:
+                    f.write(f"Training halted at Epoch {epoch} because free space dropped below 15GB.")
+                break
+                
             chkpt_path = f"model/checkpoints/{args.stage_name}_mvss_lite_ep{epoch}.pt"
             torch.save({
                 'epoch': epoch,
@@ -338,6 +366,18 @@ def train():
                 'loss': avg_total
             }, chkpt_path)
             print(f"Checkpoint saved to {chkpt_path}")
+            
+            saved_checkpoints.append(chkpt_path)
+            if len(saved_checkpoints) > 3:
+                old_chkpt = saved_checkpoints.pop(0)
+                if old_chkpt != best_checkpoint_path and os.path.exists(old_chkpt):
+                    os.remove(old_chkpt)
+                    print(f"Deleted old checkpoint {old_chkpt}")
+                    
+            if avg_val_total < best_val_loss:
+                best_val_loss = avg_val_total
+                best_checkpoint_path = chkpt_path
+                print(f"New best validation loss: {best_val_loss:.4f} at epoch {epoch}")
             
     # Plotting the loss curve
     print("Generating loss curve plot...")
@@ -359,26 +399,7 @@ def train():
     plt.close()
     print(f"Training finished! Plot saved to {plot_path}")
     
-    # Save statistics to CSV
-    csv_path = f"reports/{args.stage_name}_history.csv"
-    import csv
-    with open(csv_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['epoch', 'train_seg_loss', 'train_edge_loss', 'train_total_loss', 'val_seg_loss', 'val_edge_loss', 'val_total_loss', 'learning_rate', 'epoch_time_sec', 'gpu_mem_mb'])
-        for i in range(len(history['epoch'])):
-            writer.writerow([
-                history['epoch'][i], 
-                history['seg_loss'][i], 
-                history['edge_loss'][i], 
-                history['total_loss'][i],
-                history['val_seg_loss'][i],
-                history['val_edge_loss'][i],
-                history['val_total_loss'][i],
-                history['learning_rate'][i],
-                history['epoch_time_sec'][i],
-                history['gpu_mem_mb'][i]
-            ])
-    print(f"Statistics saved to {csv_path}")
+    print("Done!")
 
 
 if __name__ == '__main__':

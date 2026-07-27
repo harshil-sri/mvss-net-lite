@@ -1,0 +1,99 @@
+Loading specific domain-split probe images from indices...
+Extraction complete. Found 20 OLD and 20 NEW probes.
+
+==================================================
+STAGE 2 EXTENDED: Epoch 6 to 15
+==================================================
+Checkpoint saved to model/checkpoints/stage2_mvss_lite_ep8.pt
+
+--- FP PROBE AT Epoch 8 (RTM Authentic Tabular (OLD PROBE SET)) ---
+Avg Max Prob: 0.7636 (Peak: 0.9872 on Image #3)
+Threshold 0.5: 17/20 hallucinating (Avg Pixels: 17010.70)
+Hallucinating Image Indices (>0.5): [0, 1, 2, 3, 4, 5, 7, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19]
+Threshold 0.6: 15/20 hallucinating (Avg Pixels: 12538.40)
+Threshold 0.7: 12/20 hallucinating (Avg Pixels: 8562.95)
+Threshold 0.8: 11/20 hallucinating (Avg Pixels: 4941.00)
+Threshold 0.9: 8/20 hallucinating (Avg Pixels: 1416.10)
+---------------------------
+
+
+--- FP PROBE AT Epoch 8 (RTM Authentic Tabular (NEW UNSEEN SET)) ---
+Avg Max Prob: 0.9184 (Peak: 0.9813 on Image #1)
+Threshold 0.5: 20/20 hallucinating (Avg Pixels: 25589.20)
+Hallucinating Image Indices (>0.5): [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+Threshold 0.6: 20/20 hallucinating (Avg Pixels: 18640.65)
+Threshold 0.7: 19/20 hallucinating (Avg Pixels: 12602.05)
+Threshold 0.8: 19/20 hallucinating (Avg Pixels: 6459.30)
+Threshold 0.9: 14/20 hallucinating (Avg Pixels: 1525.20)
+---------------------------
+
+
+Evaluating Recall for model/checkpoints/stage2_mvss_lite_ep8.pt
+Loaded 9000 samples from ['RTM']
+Threshold 0.5: Avg TP Pixels: 187.98
+Threshold 0.6: Avg TP Pixels: 174.72
+Threshold 0.7: Avg TP Pixels: 159.10
+Threshold 0.8: Avg TP Pixels: 125.08
+Threshold 0.9: Avg TP Pixels: 52.68
+Checkpoint saved to model/checkpoints/stage2_mvss_lite_ep11.pt
+
+--- FP PROBE AT Epoch 11 (RTM Authentic Tabular (OLD PROBE SET)) ---
+Avg Max Prob: 0.7359 (Peak: 0.9860 on Image #14)
+Threshold 0.5: 15/20 hallucinating (Avg Pixels: 13940.35)
+Hallucinating Image Indices (>0.5): [1, 2, 3, 4, 7, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19]
+Threshold 0.6: 13/20 hallucinating (Avg Pixels: 10403.55)
+Threshold 0.7: 11/20 hallucinating (Avg Pixels: 7053.60)
+Threshold 0.8: 10/20 hallucinating (Avg Pixels: 3992.45)
+Threshold 0.9: 10/20 hallucinating (Avg Pixels: 1007.55)
+---------------------------
+
+
+--- FP PROBE AT Epoch 11 (RTM Authentic Tabular (NEW UNSEEN SET)) ---
+Avg Max Prob: 0.9003 (Peak: 0.9745 on Image #13)
+Threshold 0.5: 20/20 hallucinating (Avg Pixels: 21265.95)
+Hallucinating Image Indices (>0.5): [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+Threshold 0.6: 19/20 hallucinating (Avg Pixels: 15211.75)
+Threshold 0.7: 18/20 hallucinating (Avg Pixels: 9480.70)
+Threshold 0.8: 18/20 hallucinating (Avg Pixels: 4736.80)
+Threshold 0.9: 15/20 hallucinating (Avg Pixels: 1015.30)
+---------------------------
+
+
+Evaluating Recall for model/checkpoints/stage2_mvss_lite_ep11.pt
+Loaded 9000 samples from ['RTM']
+Threshold 0.5: Avg TP Pixels: 172.74
+Threshold 0.6: Avg TP Pixels: 158.96
+Threshold 0.7: Avg TP Pixels: 136.26
+Threshold 0.8: Avg TP Pixels: 106.72
+Threshold 0.9: Avg TP Pixels: 42.74
+Checkpoint saved to model/checkpoints/stage2_mvss_lite_ep15.pt
+
+--- FP PROBE AT Epoch 15 (RTM Authentic Tabular (OLD PROBE SET)) ---
+Avg Max Prob: 0.7841 (Peak: 0.9840 on Image #14)
+Threshold 0.5: 19/20 hallucinating (Avg Pixels: 14078.35)
+Hallucinating Image Indices (>0.5): [0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+Threshold 0.6: 15/20 hallucinating (Avg Pixels: 9464.55)
+Threshold 0.7: 12/20 hallucinating (Avg Pixels: 5472.55)
+Threshold 0.8: 11/20 hallucinating (Avg Pixels: 2744.75)
+Threshold 0.9: 8/20 hallucinating (Avg Pixels: 662.75)
+---------------------------
+
+
+--- FP PROBE AT Epoch 15 (RTM Authentic Tabular (NEW UNSEEN SET)) ---
+Avg Max Prob: 0.8894 (Peak: 0.9837 on Image #1)
+Threshold 0.5: 20/20 hallucinating (Avg Pixels: 18659.20)
+Hallucinating Image Indices (>0.5): [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+Threshold 0.6: 20/20 hallucinating (Avg Pixels: 14054.75)
+Threshold 0.7: 20/20 hallucinating (Avg Pixels: 9448.75)
+Threshold 0.8: 17/20 hallucinating (Avg Pixels: 4784.30)
+Threshold 0.9: 11/20 hallucinating (Avg Pixels: 1106.15)
+---------------------------
+
+
+Evaluating Recall for model/checkpoints/stage2_mvss_lite_ep15.pt
+Loaded 9000 samples from ['RTM']
+Threshold 0.5: Avg TP Pixels: 179.28
+Threshold 0.6: Avg TP Pixels: 167.06
+Threshold 0.7: Avg TP Pixels: 136.40
+Threshold 0.8: Avg TP Pixels: 91.28
+Threshold 0.9: Avg TP Pixels: 30.12

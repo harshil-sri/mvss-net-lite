@@ -18,7 +18,11 @@ def evaluate_recall(checkpoint_path):
     print(f"\nEvaluating Recall for {checkpoint_path}")
     
     model = MVSSNetLite().to(device)
-    model.load_state_dict(torch.load(checkpoint_path, map_location=device))
+    chkpt = torch.load(checkpoint_path, map_location=device)
+    if 'model' in chkpt:
+        model.load_state_dict(chkpt['model'])
+    else:
+        model.load_state_dict(chkpt)
     model.eval()
     
     # Grab 50 RTM Forged images (general, not necessarily tabular)
@@ -57,16 +61,24 @@ def evaluate_recall(checkpoint_path):
         avg_tp = np.mean(tp_pixels[t])
         print(f"Threshold {t}: Avg TP Pixels: {avg_tp:.2f}")
 
+import sys
 if __name__ == '__main__':
-    ep3_path = 'model/checkpoints/stage2_mvss_lite_ep3.pt'
-    ep5_path = 'model/checkpoints/stage2_mvss_lite_ep5.pt'
-    
-    if os.path.exists(ep3_path):
-        evaluate_recall(ep3_path)
+    if len(sys.argv) > 1:
+        path = sys.argv[1]
+        if os.path.exists(path):
+            evaluate_recall(path)
+        else:
+            print(f"{path} not found.")
     else:
-        print(f"{ep3_path} not found yet.")
+        ep3_path = 'model/checkpoints/stage2_mvss_lite_ep3.pt'
+        ep5_path = 'model/checkpoints/stage2_mvss_lite_ep5.pt'
         
-    if os.path.exists(ep5_path):
-        evaluate_recall(ep5_path)
-    else:
-        print(f"{ep5_path} not found yet.")
+        if os.path.exists(ep3_path):
+            evaluate_recall(ep3_path)
+        else:
+            print(f"{ep3_path} not found yet.")
+            
+        if os.path.exists(ep5_path):
+            evaluate_recall(ep5_path)
+        else:
+            print(f"{ep5_path} not found yet.")
