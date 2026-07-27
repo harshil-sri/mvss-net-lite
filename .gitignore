@@ -44,3 +44,4 @@ run_pipeline.sh
 /audit_report.md
 /stage1_*.md
 *.tar.gz
+run_overnight.sh
