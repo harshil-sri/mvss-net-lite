@@ -1,0 +1,67 @@
+Extracting domain-split probe images (RTM Authentic Tabular & RTM Forged Tabular)...
+Extraction complete. Found 20 RTM Authentic Tabular and 20 RTM Forged Tabular.
+
+==================================================
+STAGE 2 TRAINING: RTM + MIDV500 (5 Epochs, Balanced Sampler, Mask Fix)
+==================================================
+
+--- FP PROBE AT 0% (Untrained) (RTM Authentic Tabular) ---
+Avg Max Prob: 0.4836 (Peak: 0.4852 on Image #2)
+Threshold 0.5: 0/20 hallucinating (Avg Pixels: 0.00)
+Threshold 0.6: 0/20 hallucinating (Avg Pixels: 0.00)
+Threshold 0.7: 0/20 hallucinating (Avg Pixels: 0.00)
+Threshold 0.8: 0/20 hallucinating (Avg Pixels: 0.00)
+Threshold 0.9: 0/20 hallucinating (Avg Pixels: 0.00)
+---------------------------
+
+
+--- TP PROBE AT 0% (Untrained) (RTM FORGED TABULAR) ---
+Threshold 0.5: Avg TP Pixels: 0.00
+Threshold 0.6: Avg TP Pixels: 0.00
+Threshold 0.7: Avg TP Pixels: 0.00
+Threshold 0.8: Avg TP Pixels: 0.00
+Threshold 0.9: Avg TP Pixels: 0.00
+---------------------------
+
+Checkpoint saved to model/checkpoints/stage2_mvss_lite_ep3.pt
+
+--- FP PROBE AT Epoch 3 - 100% (RTM Authentic Tabular) ---
+Avg Max Prob: 0.8037 (Peak: 0.9897 on Image #14)
+Threshold 0.5: 19/20 hallucinating (Avg Pixels: 18744.60)
+Hallucinating Image Indices (>0.5): [0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+Threshold 0.6: 17/20 hallucinating (Avg Pixels: 12790.90)
+Threshold 0.7: 14/20 hallucinating (Avg Pixels: 7869.95)
+Threshold 0.8: 13/20 hallucinating (Avg Pixels: 4071.65)
+Threshold 0.9: 8/20 hallucinating (Avg Pixels: 992.60)
+---------------------------
+
+
+--- TP PROBE AT Epoch 3 - 100% (RTM FORGED TABULAR) ---
+Threshold 0.5: Avg TP Pixels: 223.40
+Threshold 0.6: Avg TP Pixels: 202.60
+Threshold 0.7: Avg TP Pixels: 177.75
+Threshold 0.8: Avg TP Pixels: 147.30
+Threshold 0.9: Avg TP Pixels: 70.45
+---------------------------
+
+Checkpoint saved to model/checkpoints/stage2_mvss_lite_ep5.pt
+
+--- FP PROBE AT Epoch 5 - 100% (RTM Authentic Tabular) ---
+Avg Max Prob: 0.6952 (Peak: 0.9888 on Image #14)
+Threshold 0.5: 14/20 hallucinating (Avg Pixels: 14642.70)
+Hallucinating Image Indices (>0.5): [0, 1, 2, 3, 4, 7, 10, 11, 12, 13, 14, 17, 18, 19]
+Threshold 0.6: 12/20 hallucinating (Avg Pixels: 10614.95)
+Threshold 0.7: 11/20 hallucinating (Avg Pixels: 7397.20)
+Threshold 0.8: 10/20 hallucinating (Avg Pixels: 4080.55)
+Threshold 0.9: 8/20 hallucinating (Avg Pixels: 944.75)
+---------------------------
+
+
+--- TP PROBE AT Epoch 5 - 100% (RTM FORGED TABULAR) ---
+Threshold 0.5: Avg TP Pixels: 223.45
+Threshold 0.6: Avg TP Pixels: 209.40
+Threshold 0.7: Avg TP Pixels: 172.75
+Threshold 0.8: Avg TP Pixels: 133.05
+Threshold 0.9: Avg TP Pixels: 68.90
+---------------------------
+

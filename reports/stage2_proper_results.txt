@@ -1,0 +1,160 @@
+Loading specific domain-split probe images from indices...
+Extraction complete. Found 20 OLD and 20 NEW probes.
+
+==================================================
+STAGE 2 PROPER EXTENSION: Epoch 1 to 15 (Cosine Annealing)
+==================================================
+
+--- Epoch 1/15 (LR: 0.000100) ---
+
+--- Epoch 2/15 (LR: 0.000099) ---
+
+--- Epoch 3/15 (LR: 0.000096) ---
+
+--- Epoch 4/15 (LR: 0.000091) ---
+
+--- Epoch 5/15 (LR: 0.000084) ---
+Checkpoint saved to model/checkpoints/stage2_proper_ep5.pt
+
+--- FP PROBE AT Epoch 5 (RTM Authentic Tabular (OLD PROBE SET)) ---
+Avg Max Prob: 0.6448 (Peak: 0.9913 on Image #14)
+Threshold 0.5: 12/20 hallucinating (Avg Pixels: 15082.60)
+Hallucinating Image Indices (>0.5): [2, 3, 4, 7, 10, 11, 12, 13, 14, 17, 18, 19]
+Threshold 0.6: 11/20 hallucinating (Avg Pixels: 10715.60)
+Threshold 0.7: 10/20 hallucinating (Avg Pixels: 7201.15)
+Threshold 0.8: 10/20 hallucinating (Avg Pixels: 3877.20)
+Threshold 0.9: 10/20 hallucinating (Avg Pixels: 975.95)
+---------------------------
+
+
+--- FP PROBE AT Epoch 5 (RTM Authentic Tabular (NEW UNSEEN SET)) ---
+Avg Max Prob: 0.8955 (Peak: 0.9835 on Image #1)
+Threshold 0.5: 19/20 hallucinating (Avg Pixels: 28061.85)
+Hallucinating Image Indices (>0.5): [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19]
+Threshold 0.6: 19/20 hallucinating (Avg Pixels: 19383.10)
+Threshold 0.7: 18/20 hallucinating (Avg Pixels: 11991.65)
+Threshold 0.8: 18/20 hallucinating (Avg Pixels: 5768.95)
+Threshold 0.9: 15/20 hallucinating (Avg Pixels: 1120.25)
+---------------------------
+
+
+Evaluating Recall for model/checkpoints/stage2_proper_ep5.pt
+Loaded 9000 samples from ['RTM']
+Threshold 0.5: Avg TP Pixels: 183.88
+Threshold 0.6: Avg TP Pixels: 171.70
+Threshold 0.7: Avg TP Pixels: 148.56
+Threshold 0.8: Avg TP Pixels: 113.36
+Threshold 0.9: Avg TP Pixels: 42.48
+
+--- Epoch 6/15 (LR: 0.000075) ---
+
+--- Epoch 7/15 (LR: 0.000066) ---
+
+--- Epoch 8/15 (LR: 0.000056) ---
+Checkpoint saved to model/checkpoints/stage2_proper_ep8.pt
+
+--- FP PROBE AT Epoch 8 (RTM Authentic Tabular (OLD PROBE SET)) ---
+Avg Max Prob: 0.6444 (Peak: 0.9822 on Image #14)
+Threshold 0.5: 12/20 hallucinating (Avg Pixels: 13934.55)
+Hallucinating Image Indices (>0.5): [2, 3, 4, 7, 10, 11, 12, 13, 14, 17, 18, 19]
+Threshold 0.6: 11/20 hallucinating (Avg Pixels: 10383.50)
+Threshold 0.7: 11/20 hallucinating (Avg Pixels: 7298.95)
+Threshold 0.8: 10/20 hallucinating (Avg Pixels: 4114.25)
+Threshold 0.9: 10/20 hallucinating (Avg Pixels: 967.60)
+---------------------------
+
+
+--- FP PROBE AT Epoch 8 (RTM Authentic Tabular (NEW UNSEEN SET)) ---
+Avg Max Prob: 0.8343 (Peak: 0.9775 on Image #1)
+Threshold 0.5: 17/20 hallucinating (Avg Pixels: 22961.90)
+Hallucinating Image Indices (>0.5): [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19]
+Threshold 0.6: 17/20 hallucinating (Avg Pixels: 17028.80)
+Threshold 0.7: 17/20 hallucinating (Avg Pixels: 11194.20)
+Threshold 0.8: 16/20 hallucinating (Avg Pixels: 5793.45)
+Threshold 0.9: 12/20 hallucinating (Avg Pixels: 1118.30)
+---------------------------
+
+
+Evaluating Recall for model/checkpoints/stage2_proper_ep8.pt
+Loaded 9000 samples from ['RTM']
+Threshold 0.5: Avg TP Pixels: 177.78
+Threshold 0.6: Avg TP Pixels: 164.16
+Threshold 0.7: Avg TP Pixels: 145.56
+Threshold 0.8: Avg TP Pixels: 112.60
+Threshold 0.9: Avg TP Pixels: 51.88
+
+--- Epoch 9/15 (LR: 0.000045) ---
+
+--- Epoch 10/15 (LR: 0.000035) ---
+
+--- Epoch 11/15 (LR: 0.000026) ---
+Checkpoint saved to model/checkpoints/stage2_proper_ep11.pt
+
+--- FP PROBE AT Epoch 11 (RTM Authentic Tabular (OLD PROBE SET)) ---
+Avg Max Prob: 0.6531 (Peak: 0.9784 on Image #11)
+Threshold 0.5: 12/20 hallucinating (Avg Pixels: 10999.70)
+Hallucinating Image Indices (>0.5): [2, 3, 4, 7, 10, 11, 12, 13, 14, 17, 18, 19]
+Threshold 0.6: 12/20 hallucinating (Avg Pixels: 8259.60)
+Threshold 0.7: 11/20 hallucinating (Avg Pixels: 5537.45)
+Threshold 0.8: 10/20 hallucinating (Avg Pixels: 2883.00)
+Threshold 0.9: 9/20 hallucinating (Avg Pixels: 800.25)
+---------------------------
+
+
+--- FP PROBE AT Epoch 11 (RTM Authentic Tabular (NEW UNSEEN SET)) ---
+Avg Max Prob: 0.8372 (Peak: 0.9825 on Image #1)
+Threshold 0.5: 18/20 hallucinating (Avg Pixels: 18744.45)
+Hallucinating Image Indices (>0.5): [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19]
+Threshold 0.6: 18/20 hallucinating (Avg Pixels: 13445.60)
+Threshold 0.7: 17/20 hallucinating (Avg Pixels: 8548.65)
+Threshold 0.8: 14/20 hallucinating (Avg Pixels: 3906.75)
+Threshold 0.9: 11/20 hallucinating (Avg Pixels: 793.45)
+---------------------------
+
+
+Evaluating Recall for model/checkpoints/stage2_proper_ep11.pt
+Loaded 9000 samples from ['RTM']
+Threshold 0.5: Avg TP Pixels: 174.76
+Threshold 0.6: Avg TP Pixels: 160.10
+Threshold 0.7: Avg TP Pixels: 140.36
+Threshold 0.8: Avg TP Pixels: 102.54
+Threshold 0.9: Avg TP Pixels: 43.58
+
+--- Epoch 12/15 (LR: 0.000017) ---
+
+--- Epoch 13/15 (LR: 0.000010) ---
+
+--- Epoch 14/15 (LR: 0.000005) ---
+
+--- Epoch 15/15 (LR: 0.000002) ---
+Checkpoint saved to model/checkpoints/stage2_proper_ep15.pt
+
+--- FP PROBE AT Epoch 15 (RTM Authentic Tabular (OLD PROBE SET)) ---
+Avg Max Prob: 0.6375 (Peak: 0.9812 on Image #11)
+Threshold 0.5: 12/20 hallucinating (Avg Pixels: 10856.30)
+Hallucinating Image Indices (>0.5): [2, 3, 4, 7, 10, 11, 12, 13, 14, 17, 18, 19]
+Threshold 0.6: 12/20 hallucinating (Avg Pixels: 8423.60)
+Threshold 0.7: 11/20 hallucinating (Avg Pixels: 5903.85)
+Threshold 0.8: 10/20 hallucinating (Avg Pixels: 3356.35)
+Threshold 0.9: 8/20 hallucinating (Avg Pixels: 1100.35)
+---------------------------
+
+
+--- FP PROBE AT Epoch 15 (RTM Authentic Tabular (NEW UNSEEN SET)) ---
+Avg Max Prob: 0.8523 (Peak: 0.9929 on Image #1)
+Threshold 0.5: 18/20 hallucinating (Avg Pixels: 19298.30)
+Hallucinating Image Indices (>0.5): [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19]
+Threshold 0.6: 18/20 hallucinating (Avg Pixels: 14033.65)
+Threshold 0.7: 18/20 hallucinating (Avg Pixels: 9126.20)
+Threshold 0.8: 16/20 hallucinating (Avg Pixels: 4695.25)
+Threshold 0.9: 12/20 hallucinating (Avg Pixels: 1208.90)
+---------------------------
+
+
+Evaluating Recall for model/checkpoints/stage2_proper_ep15.pt
+Loaded 9000 samples from ['RTM']
+Threshold 0.5: Avg TP Pixels: 181.12
+Threshold 0.6: Avg TP Pixels: 173.56
+Threshold 0.7: Avg TP Pixels: 154.74
+Threshold 0.8: Avg TP Pixels: 117.12
+Threshold 0.9: Avg TP Pixels: 58.72

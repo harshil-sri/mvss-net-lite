@@ -1,0 +1,98 @@
+Extracting domain-split probe images (RTM vs MIDV500)...
+Extraction complete. Found 20 RTM authentics and 20 MIDV500 authentics.
+
+==================================================
+STAGE 2 PILOT: RTM + MIDV500 (2 Epochs, Balanced Sampler)
+==================================================
+
+--- PROBE AT 0% (Untrained) (RTM) ---
+Avg Max Prob: 0.5482 (Peak: 0.5836 on Image #19)
+Avg Hallucinated Pixels (>0.5): 65321.20
+Total Hallucinating Images: 20/20
+Hallucinating Image Indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+---------------------------
+
+
+--- PROBE AT 0% (Untrained) (MIDV500) ---
+Avg Max Prob: 0.5418 (Peak: 0.5513 on Image #2)
+Avg Hallucinated Pixels (>0.5): 65512.70
+Total Hallucinating Images: 20/20
+Hallucinating Image Indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+---------------------------
+
+
+--- PROBE AT Epoch 1 - 50% (RTM) ---
+Avg Max Prob: 0.8900 (Peak: 0.9959 on Image #14)
+Avg Hallucinated Pixels (>0.5): 35888.15
+Total Hallucinating Images: 20/20
+Hallucinating Image Indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+---------------------------
+
+
+--- PROBE AT Epoch 1 - 50% (MIDV500) ---
+Avg Max Prob: 0.4110 (Peak: 0.7859 on Image #12)
+Avg Hallucinated Pixels (>0.5): 292.10
+Total Hallucinating Images: 3/20
+Hallucinating Image Indices: [12, 13, 17]
+---------------------------
+
+
+--- PROBE AT Epoch 1 - 100% (RTM) ---
+Avg Max Prob: 0.9328 (Peak: 0.9905 on Image #14)
+Avg Hallucinated Pixels (>0.5): 35483.20
+Total Hallucinating Images: 20/20
+Hallucinating Image Indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+---------------------------
+
+
+--- PROBE AT Epoch 1 - 100% (MIDV500) ---
+Avg Max Prob: 0.6027 (Peak: 0.8684 on Image #6)
+Avg Hallucinated Pixels (>0.5): 1545.35
+Total Hallucinating Images: 15/20
+Hallucinating Image Indices: [0, 1, 2, 4, 5, 6, 9, 10, 11, 12, 13, 14, 16, 17, 19]
+---------------------------
+
+
+--- PROBE AT Epoch 2 - 50% (RTM) ---
+Avg Max Prob: 0.8755 (Peak: 0.9871 on Image #14)
+Avg Hallucinated Pixels (>0.5): 25518.55
+Total Hallucinating Images: 20/20
+Hallucinating Image Indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+---------------------------
+
+
+--- PROBE AT Epoch 2 - 50% (MIDV500) ---
+Avg Max Prob: 0.5325 (Peak: 0.9207 on Image #17)
+Avg Hallucinated Pixels (>0.5): 724.20
+Total Hallucinating Images: 9/20
+Hallucinating Image Indices: [6, 8, 10, 11, 12, 13, 14, 17, 19]
+---------------------------
+
+
+--- PROBE AT Epoch 2 - 100% (RTM) ---
+Avg Max Prob: 0.8408 (Peak: 0.9850 on Image #14)
+Avg Hallucinated Pixels (>0.5): 20954.45
+Total Hallucinating Images: 20/20
+Hallucinating Image Indices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+---------------------------
+
+
+--- PROBE AT Epoch 2 - 100% (MIDV500) ---
+Avg Max Prob: 0.3156 (Peak: 0.5903 on Image #5)
+Avg Hallucinated Pixels (>0.5): 5.30
+Total Hallucinating Images: 3/20
+Hallucinating Image Indices: [5, 14, 17]
+---------------------------
+
+
+==================================================
+DOMAIN SPLIT BAYAR ABLATION TESTS
+==================================================
+
+================ RTM ABLATION ================
+Average Loss (Intact BayarConv): 5.4319
+Average Loss (Zeroed BayarConv): 5.7311
+Difference: 0.2992
+
+================ MIDV500 ABLATION ================
+No forged batches found for MIDV500.

@@ -12,6 +12,7 @@ node_modules/
 .DS_Store
 model/checkpoints/*
 !model/checkpoints/.gitkeep
+!model/checkpoints/*_fp16.pt
 data_pipeline/raw/*
 !data_pipeline/raw/.gitkeep
 data_pipeline/processed/*
@@ -34,3 +35,21 @@ feedback.txt
 reports/*.png
 !reports/loss_curve.png
 audit_report.md
+reports/old_architecture_diagram.jpg
+data/*
+!data/.gitkeep
+run_pipeline.sh
+*.zip
+/*_task.md
+/audit_report.md
+/stage1_*.md
+*.tar.gz
+run_overnight.sh
+
+# Scratch and test files
+check_preds.py
+find_best_forged.py
+prepare_mentor_update*.py
+test_*.py
+verify_frontend.py
+test.txt

@@ -1,0 +1,174 @@
+Building probe sets directly from the new unified manifest...
+Extracted 50 CASIAv2 Authentic
+Extracted 50 CASIAv2 Forged
+Extracted 50 DEFACTO Forged
+
+==================================================
+EVALUATING EPOCH 30
+==================================================
+
+--- FP PROBE (CASIAv2 Authentic (Should be 0 FP)) ---
+Avg Max Prob: 0.7023 (Peak: 0.9978 on Image #38)
+Threshold 0.5: 36/50 hallucinating (Avg Pixels: 4657.04)
+Threshold 0.6: 32/50 hallucinating (Avg Pixels: 3400.92)
+Threshold 0.7: 27/50 hallucinating (Avg Pixels: 2290.04)
+Threshold 0.8: 26/50 hallucinating (Avg Pixels: 1298.00)
+Threshold 0.9: 19/50 hallucinating (Avg Pixels: 491.56)
+---------------------------
+
+
+--- FP PROBE (CASIAv2 Forged (Should be High TP)) ---
+Avg Max Prob: 0.9658 (Peak: 0.9977 on Image #6)
+Threshold 0.5: 50/50 hallucinating (Avg Pixels: 9241.12)
+Threshold 0.6: 50/50 hallucinating (Avg Pixels: 6926.16)
+Threshold 0.7: 50/50 hallucinating (Avg Pixels: 4873.76)
+Threshold 0.8: 50/50 hallucinating (Avg Pixels: 3045.68)
+Threshold 0.9: 46/50 hallucinating (Avg Pixels: 1426.62)
+---------------------------
+
+
+--- FP PROBE (DEFACTO Forged (Should be High TP)) ---
+Avg Max Prob: 0.9817 (Peak: 0.9992 on Image #35)
+Threshold 0.5: 50/50 hallucinating (Avg Pixels: 8319.74)
+Threshold 0.6: 50/50 hallucinating (Avg Pixels: 6629.74)
+Threshold 0.7: 50/50 hallucinating (Avg Pixels: 5050.72)
+Threshold 0.8: 50/50 hallucinating (Avg Pixels: 3503.24)
+Threshold 0.9: 48/50 hallucinating (Avg Pixels: 1943.02)
+---------------------------
+
+
+==================================================
+EVALUATING EPOCH 35
+==================================================
+
+--- FP PROBE (CASIAv2 Authentic (Should be 0 FP)) ---
+Avg Max Prob: 0.8121 (Peak: 0.9975 on Image #29)
+Threshold 0.5: 43/50 hallucinating (Avg Pixels: 4301.98)
+Threshold 0.6: 39/50 hallucinating (Avg Pixels: 3165.50)
+Threshold 0.7: 39/50 hallucinating (Avg Pixels: 2222.86)
+Threshold 0.8: 36/50 hallucinating (Avg Pixels: 1387.46)
+Threshold 0.9: 32/50 hallucinating (Avg Pixels: 655.36)
+---------------------------
+
+
+--- FP PROBE (CASIAv2 Forged (Should be High TP)) ---
+Avg Max Prob: 0.9727 (Peak: 0.9987 on Image #6)
+Threshold 0.5: 50/50 hallucinating (Avg Pixels: 8135.64)
+Threshold 0.6: 50/50 hallucinating (Avg Pixels: 6326.16)
+Threshold 0.7: 50/50 hallucinating (Avg Pixels: 4706.10)
+Threshold 0.8: 49/50 hallucinating (Avg Pixels: 3181.08)
+Threshold 0.9: 47/50 hallucinating (Avg Pixels: 1632.90)
+---------------------------
+
+
+--- FP PROBE (DEFACTO Forged (Should be High TP)) ---
+Avg Max Prob: 0.9806 (Peak: 0.9994 on Image #44)
+Threshold 0.5: 50/50 hallucinating (Avg Pixels: 7090.18)
+Threshold 0.6: 50/50 hallucinating (Avg Pixels: 5686.82)
+Threshold 0.7: 50/50 hallucinating (Avg Pixels: 4365.46)
+Threshold 0.8: 50/50 hallucinating (Avg Pixels: 3095.02)
+Threshold 0.9: 49/50 hallucinating (Avg Pixels: 1731.64)
+---------------------------
+
+
+==================================================
+EVALUATING EPOCH 40
+==================================================
+
+--- FP PROBE (CASIAv2 Authentic (Should be 0 FP)) ---
+Avg Max Prob: 0.7530 (Peak: 0.9970 on Image #29)
+Threshold 0.5: 39/50 hallucinating (Avg Pixels: 4915.32)
+Threshold 0.6: 37/50 hallucinating (Avg Pixels: 3591.26)
+Threshold 0.7: 35/50 hallucinating (Avg Pixels: 2409.48)
+Threshold 0.8: 32/50 hallucinating (Avg Pixels: 1418.94)
+Threshold 0.9: 25/50 hallucinating (Avg Pixels: 576.90)
+---------------------------
+
+
+--- FP PROBE (CASIAv2 Forged (Should be High TP)) ---
+Avg Max Prob: 0.9596 (Peak: 0.9993 on Image #6)
+Threshold 0.5: 50/50 hallucinating (Avg Pixels: 8082.92)
+Threshold 0.6: 50/50 hallucinating (Avg Pixels: 6075.72)
+Threshold 0.7: 50/50 hallucinating (Avg Pixels: 4321.06)
+Threshold 0.8: 47/50 hallucinating (Avg Pixels: 2796.20)
+Threshold 0.9: 45/50 hallucinating (Avg Pixels: 1410.22)
+---------------------------
+
+
+--- FP PROBE (DEFACTO Forged (Should be High TP)) ---
+Avg Max Prob: 0.9799 (Peak: 0.9996 on Image #43)
+Threshold 0.5: 50/50 hallucinating (Avg Pixels: 6134.30)
+Threshold 0.6: 50/50 hallucinating (Avg Pixels: 4866.26)
+Threshold 0.7: 50/50 hallucinating (Avg Pixels: 3728.02)
+Threshold 0.8: 50/50 hallucinating (Avg Pixels: 2596.14)
+Threshold 0.9: 50/50 hallucinating (Avg Pixels: 1469.28)
+---------------------------
+
+
+==================================================
+EVALUATING EPOCH 45
+==================================================
+
+--- FP PROBE (CASIAv2 Authentic (Should be 0 FP)) ---
+Avg Max Prob: 0.6538 (Peak: 0.9988 on Image #34)
+Threshold 0.5: 33/50 hallucinating (Avg Pixels: 2796.96)
+Threshold 0.6: 33/50 hallucinating (Avg Pixels: 2013.12)
+Threshold 0.7: 31/50 hallucinating (Avg Pixels: 1367.52)
+Threshold 0.8: 29/50 hallucinating (Avg Pixels: 833.32)
+Threshold 0.9: 18/50 hallucinating (Avg Pixels: 396.64)
+---------------------------
+
+
+--- FP PROBE (CASIAv2 Forged (Should be High TP)) ---
+Avg Max Prob: 0.9513 (Peak: 0.9984 on Image #6)
+Threshold 0.5: 50/50 hallucinating (Avg Pixels: 6589.80)
+Threshold 0.6: 48/50 hallucinating (Avg Pixels: 4923.04)
+Threshold 0.7: 47/50 hallucinating (Avg Pixels: 3539.42)
+Threshold 0.8: 47/50 hallucinating (Avg Pixels: 2304.12)
+Threshold 0.9: 46/50 hallucinating (Avg Pixels: 1109.60)
+---------------------------
+
+
+--- FP PROBE (DEFACTO Forged (Should be High TP)) ---
+Avg Max Prob: 0.9869 (Peak: 0.9989 on Image #47)
+Threshold 0.5: 50/50 hallucinating (Avg Pixels: 6522.84)
+Threshold 0.6: 50/50 hallucinating (Avg Pixels: 5178.50)
+Threshold 0.7: 50/50 hallucinating (Avg Pixels: 3914.90)
+Threshold 0.8: 50/50 hallucinating (Avg Pixels: 2714.78)
+Threshold 0.9: 50/50 hallucinating (Avg Pixels: 1523.28)
+---------------------------
+
+
+==================================================
+EVALUATING EPOCH 50
+==================================================
+
+--- FP PROBE (CASIAv2 Authentic (Should be 0 FP)) ---
+Avg Max Prob: 0.8039 (Peak: 0.9984 on Image #38)
+Threshold 0.5: 43/50 hallucinating (Avg Pixels: 2426.82)
+Threshold 0.6: 43/50 hallucinating (Avg Pixels: 1776.18)
+Threshold 0.7: 41/50 hallucinating (Avg Pixels: 1236.32)
+Threshold 0.8: 30/50 hallucinating (Avg Pixels: 771.50)
+Threshold 0.9: 24/50 hallucinating (Avg Pixels: 375.44)
+---------------------------
+
+
+--- FP PROBE (CASIAv2 Forged (Should be High TP)) ---
+Avg Max Prob: 0.9754 (Peak: 0.9993 on Image #6)
+Threshold 0.5: 50/50 hallucinating (Avg Pixels: 5530.10)
+Threshold 0.6: 50/50 hallucinating (Avg Pixels: 4361.96)
+Threshold 0.7: 50/50 hallucinating (Avg Pixels: 3353.78)
+Threshold 0.8: 49/50 hallucinating (Avg Pixels: 2359.94)
+Threshold 0.9: 49/50 hallucinating (Avg Pixels: 1319.90)
+---------------------------
+
+
+--- FP PROBE (DEFACTO Forged (Should be High TP)) ---
+Avg Max Prob: 0.9879 (Peak: 0.9995 on Image #35)
+Threshold 0.5: 50/50 hallucinating (Avg Pixels: 5851.56)
+Threshold 0.6: 50/50 hallucinating (Avg Pixels: 4770.14)
+Threshold 0.7: 50/50 hallucinating (Avg Pixels: 3760.14)
+Threshold 0.8: 50/50 hallucinating (Avg Pixels: 2780.68)
+Threshold 0.9: 50/50 hallucinating (Avg Pixels: 1658.90)
+---------------------------
+

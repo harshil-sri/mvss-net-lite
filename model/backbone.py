@@ -10,8 +10,8 @@ class DualResNet34Backbone(nn.Module):
         super(DualResNet34Backbone, self).__init__()
         
         # Load two standard resnet34 stems (BasicBlock architecture)
-        noise_resnet = resnet34(pretrained=False)
-        edge_resnet = resnet34(pretrained=False)
+        noise_resnet = resnet34(weights='IMAGENET1K_V1')
+        edge_resnet = resnet34(weights='IMAGENET1K_V1')
         
         # Noise branch components
         self.noise_extractor = NoiseBranchInput()
