@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Verification Report #{{ prediction.prediction_id }} — DocForge</title>
 
-<!-- Early Script to Prevent Theme Flash -->
 <script>
   (function() {
     const saved = localStorage.getItem('docforge-theme');
@@ -17,14 +16,12 @@
   })();
 </script>
 
-<!-- Modern Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    /* Design Tokens - Cool Paper & Verification Signal Ink */
     --paper: #FAFAF7;
     --ink: #141311;
     --ink-dim: #6B6860;
@@ -49,7 +46,6 @@
     --font-mono: 'Space Mono', monospace;
   }
 
-  /* Refined Ergonomic Dark Theme Tokens (Comfortable Slate Charcoal) */
   [data-theme="dark"] {
     --paper: #121316;
     --ink: #E2E4E9;
@@ -115,7 +111,6 @@
     letter-spacing: -0.011em;
     color: var(--ink);
     background-color: var(--paper);
-    /* Dynamic Architectural Grid */
     background-image: 
       linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
       linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
@@ -124,13 +119,11 @@
     transition: background-color 0.25s ease, color 0.25s ease;
   }
 
-  /* Accessibility focus styles */
   a:focus-visible, button:focus-visible, input:focus-visible {
     outline: 2px solid var(--signal);
     outline-offset: 2px;
   }
 
-  /* Header */
   header {
     display: flex;
     justify-content: space-between;
@@ -202,7 +195,6 @@
     border: 1px solid var(--line);
   }
 
-  /* Signature Redaction Wipe Entrance Badge */
   .verdict-badge {
     position: relative;
     padding: 0.4rem 1rem;
@@ -236,7 +228,6 @@
     100% { transform: scaleX(0); }
   }
 
-  /* Theme Toggle Button */
   .theme-toggle-btn {
     background: var(--surface-subtle);
     border: 1px solid var(--line);
@@ -268,7 +259,6 @@
     :root:not([data-theme="light"]) .moon-icon { display: block; }
   }
 
-  /* Layout Grid */
   .layout {
     display: grid;
     grid-template-columns: 1fr 400px;
@@ -291,7 +281,6 @@
     }
   }
 
-  /* Main Column Panels */
   .main-column {
     display: flex;
     flex-direction: column;
@@ -330,7 +319,6 @@
     color: var(--signal);
   }
 
-  /* Flexible Forensic Image Grid */
   .image-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -379,7 +367,6 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
-  /* Diagnostic Content Section */
   .report-content {
     display: flex;
     flex-direction: column;
@@ -465,7 +452,6 @@
     text-align: center;
   }
 
-  /* Sidebar Assistant Chat Widget */
   .sidebar {
     position: sticky;
     top: calc(73px + 2.5rem);
@@ -628,7 +614,6 @@
   ::-webkit-scrollbar-track { background: var(--paper); }
   ::-webkit-scrollbar-thumb { background: var(--line-dark); border-radius: 3px; }
 
-  /* Reduced Motion Respect */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation: none !important;
@@ -642,7 +627,6 @@
 </head>
 <body class="{{ prediction.verdict|lower }}-status">
 
-  <!-- Header Navbar -->
   <header>
     <a href="/" class="brand" aria-label="DocForge Home">
       <div class="brand-stamp">DF</div>
@@ -660,7 +644,6 @@
         <span>{{ prediction.verdict|upper }}</span>
       </div>
 
-      <!-- Theme Toggle Button -->
       <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle light or dark theme">
         <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
         <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
@@ -668,13 +651,10 @@
     </div>
   </header>
 
-  <!-- Diagnostic Layout -->
   <div class="layout">
     
-    <!-- Left Main Column -->
     <div class="main-column">
 
-      <!-- Panel 1: Image Inspection -->
       <div class="panel section">
         <h2 class="section-header">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
@@ -704,7 +684,6 @@
         </div>
       </div>
 
-      <!-- Panel 2: Diagnostic Analysis & Graphs -->
       <div class="panel section">
         <h2 class="section-header">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
@@ -736,7 +715,6 @@
             </div>
           </div>
 
-          <!-- Forensic Graphs Loop -->
           {% if chart_image_url or extra_graphs %}
           <div class="image-grid" style="margin-top: 0.5rem;">
             {% if chart_image_url %}
@@ -765,7 +743,6 @@
 
     </div>
     
-    <!-- Right Sidebar Assistant -->
     <div class="sidebar">
       <div class="chat-widget">
         <div class="chat-header">
@@ -791,7 +768,6 @@
   </div>
 
 <script>
-  // Theme Toggle Handler
   const themeToggleBtn = document.getElementById('theme-toggle');
   if (themeToggleBtn) {
     themeToggleBtn.addEventListener('click', () => {
@@ -902,7 +878,6 @@
     }
   });
 
-  // Fetch the summary asynchronously to avoid blocking the page load
   async function fetchSummary() {
     const summaryEl = document.querySelector('#ai-summary-container p');
     try {
