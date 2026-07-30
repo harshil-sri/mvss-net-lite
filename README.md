@@ -53,7 +53,11 @@ A probability score isn't enough when someone actually has to act on a forgery f
 
 ## Project status
 
-Right now the team is focused on two things: getting the detection pipeline solid, and building the results database it will feed into. Report generation and the natural-language query layer come after that, since both depend on that database being in place first.
+**Current State (July 2026):**
+- **Model Training:** Stage 1 and Stage 2 training of MVSS-Net Lite are complete. Stage 2 successfully fine-tuned the model for document tampering with a high `pos_weight` to handle extreme class imbalance.
+- **Inference Pipeline:** The FastAPI backend is fully operational. We recently resolved critical inference bugs related to image preprocessing (PIL interpolation matching) and threshold tuning (strict `0.97` segmentation threshold) to combat background inflation.
+- **Evaluation & Review:** We have prepared a tightly masked, fully verified dataset of pure Document Forgeries (RTM) and Authentic Documents (MIDV500/RTM) that successfully pass end-to-end evaluation with 0 false positives for the latest mentor update.
+- **Next Steps:** Scaling up the natural-language query layer and finalizing the database schema to store and retrieve historical forensic reports.
 
 <br>
 
