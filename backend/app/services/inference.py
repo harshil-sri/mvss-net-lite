@@ -75,9 +75,9 @@ def analyze_image(img_path: str, prediction_id: str):
     t1 = cv2.getTickCount()
     inference_time_ms = int((t1 - t0) * 1000 / cv2.getTickFrequency())
     
-    # Thresholding based on pred_edge which was verified to perform much better 
-    # on RTM/MIDV500 during our probes (0 FP on RTM Auth). 
-    mask_bin = (prob_edge > 0.5).astype(np.uint8) * 255
+    # We can now safely use prob_seg for the main dense mask since the 
+    # PIL preprocessing fix eliminated the false positives on Authentic images.
+    mask_bin = (prob_seg > 0.5).astype(np.uint8) * 255
     edge_bin = (prob_edge > 0.5).astype(np.uint8) * 255
     
     # Resize mask back to original dimensions for saving and bbox calculations
@@ -117,7 +117,7 @@ def analyze_image(img_path: str, prediction_id: str):
             w_256 = max(1, int(w * 256 / original_w))
             h_256 = max(1, int(h * 256 / original_h))
             
-            region_prob = prob_edge[y_256:y_256+h_256, x_256:x_256+w_256]
+            region_prob = prob_seg[y_256:y_256+h_256, x_256:x_256+w_256]
             local_conf = float(np.mean(region_prob)) if region_prob.size > 0 else 0.5
             
             global_forgery_confidence = max(global_forgery_confidence, local_conf)
@@ -131,7 +131,7 @@ def analyze_image(img_path: str, prediction_id: str):
             
     verdict = "Forged" if len(regions) > 0 and global_forgery_confidence > 0.5 else "Authentic"
     if verdict == "Authentic":
-        global_forgery_confidence = 1.0 - float(np.mean(prob_edge)) # Confidence it is real
+        global_forgery_confidence = 1.0 - float(np.mean(prob_seg)) # Confidence it is real
         
     return {
         "verdict": verdict,
