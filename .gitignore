@@ -45,3 +45,11 @@ run_pipeline.sh
 /stage1_*.md
 *.tar.gz
 run_overnight.sh
+
+# Scratch and test files
+check_preds.py
+find_best_forged.py
+prepare_mentor_update*.py
+test_*.py
+verify_frontend.py
+test.txt
