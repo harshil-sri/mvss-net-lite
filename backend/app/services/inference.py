@@ -75,9 +75,9 @@ def analyze_image(img_path: str, prediction_id: str):
     t1 = cv2.getTickCount()
     inference_time_ms = int((t1 - t0) * 1000 / cv2.getTickFrequency())
     
-    # We can now safely use prob_seg for the main dense mask since the 
-    # PIL preprocessing fix eliminated the false positives on Authentic images.
-    mask_bin = (prob_seg > 0.5).astype(np.uint8) * 255
+    # We must use a high threshold (0.97) because the stage 2 loss function 
+    # (pos_weight=50.0) artificially inflates the background probabilities.
+    mask_bin = (prob_seg > 0.97).astype(np.uint8) * 255
     edge_bin = (prob_edge > 0.5).astype(np.uint8) * 255
     
     # Resize mask back to original dimensions for saving and bbox calculations
