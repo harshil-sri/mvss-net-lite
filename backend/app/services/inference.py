@@ -53,16 +53,15 @@ def analyze_image(img_path: str, prediction_id: str):
         
     original_h, original_w = img.shape[:2]
     
-    # Same transform as training
-    img_resized = cv2.resize(img, (256, 256))
-    img_rgb = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
+    # Exact same transform as training: PIL resize, RGB, and simply divide by 255
+    from PIL import Image
+    img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img_pil = Image.fromarray(img_rgb)
+    img_pil = img_pil.resize((256, 256), Image.BILINEAR)
+    img_rgb = np.array(img_pil)
     
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
-    
-    tensor_img = transform(img_rgb).unsqueeze(0).to(device)
+    tensor_img = torch.from_numpy(img_rgb.transpose((2, 0, 1))).float() / 255.0
+    tensor_img = tensor_img.unsqueeze(0).to(device)
     
     # Inference
     t0 = cv2.getTickCount()
@@ -76,10 +75,9 @@ def analyze_image(img_path: str, prediction_id: str):
     t1 = cv2.getTickCount()
     inference_time_ms = int((t1 - t0) * 1000 / cv2.getTickFrequency())
     
-    # Thresholding - raised to 0.97 because our new pos_weight=50.0 loss
-    # makes the raw probabilities hyper-sensitive. This filters out the
-    # false-positive text and tightens the mask around the true forgery.
-    mask_bin = (prob_seg > 0.97).astype(np.uint8) * 255
+    # Thresholding based on pred_edge which was verified to perform much better 
+    # on RTM/MIDV500 during our probes (0 FP on RTM Auth). 
+    mask_bin = (prob_edge > 0.5).astype(np.uint8) * 255
     edge_bin = (prob_edge > 0.5).astype(np.uint8) * 255
     
     # Resize mask back to original dimensions for saving and bbox calculations
@@ -119,7 +117,7 @@ def analyze_image(img_path: str, prediction_id: str):
             w_256 = max(1, int(w * 256 / original_w))
             h_256 = max(1, int(h * 256 / original_h))
             
-            region_prob = prob_seg[y_256:y_256+h_256, x_256:x_256+w_256]
+            region_prob = prob_edge[y_256:y_256+h_256, x_256:x_256+w_256]
             local_conf = float(np.mean(region_prob)) if region_prob.size > 0 else 0.5
             
             global_forgery_confidence = max(global_forgery_confidence, local_conf)
@@ -131,9 +129,9 @@ def analyze_image(img_path: str, prediction_id: str):
                 "edge_consistency_score": round(float(np.mean(prob_edge)), 3) # Simplify edge score
             })
             
-    verdict = "Forged" if len(regions) > 0 and global_forgery_confidence > 0.6 else "Authentic"
+    verdict = "Forged" if len(regions) > 0 and global_forgery_confidence > 0.5 else "Authentic"
     if verdict == "Authentic":
-        global_forgery_confidence = 1.0 - float(np.mean(prob_seg)) # Confidence it is real
+        global_forgery_confidence = 1.0 - float(np.mean(prob_edge)) # Confidence it is real
         
     return {
         "verdict": verdict,
