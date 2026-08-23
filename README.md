@@ -60,7 +60,3 @@ A probability score isn't enough when someone actually has to act on a forgery f
 - **Next Steps:** Scaling up the natural-language query layer and finalizing the database schema to store and retrieve historical forensic reports.
 
 <br>
-
-<div align="center">
-  <sub>Built at CDAC · 2026</sub>
-</div>

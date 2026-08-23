@@ -53,3 +53,6 @@ prepare_mentor_update*.py
 test_*.py
 verify_frontend.py
 test.txt
+SKILL.md:Zone.Identifier
+prd.md
+prd.md:Zone.Identifier
