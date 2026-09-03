@@ -1,8 +1,19 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.autograd import Function
 
 from model.backbone import DualResNet34Backbone
+
+class GradientReversalLayer(Function):
+    @staticmethod
+    def forward(ctx, x, lambda_p):
+        ctx.lambda_p = lambda_p
+        return x.view_as(x)
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        return grad_output.neg() * ctx.lambda_p, None
 
 class MVSSNetLite(nn.Module):
     def __init__(self):
@@ -47,10 +58,25 @@ class MVSSNetLite(nn.Module):
             nn.Conv2d(32, 1, kernel_size=1)
         )
 
-    def forward(self, rgb_image):
+        # Domain classifier on f4 (512 channels)
+        self.domain_classifier = nn.Sequential(
+            nn.AdaptiveAvgPool2d(1),
+            nn.Flatten(),
+            nn.Linear(512, 256),
+            nn.ReLU(inplace=True),
+            nn.Linear(256, 2)
+        )
+
+    def forward(self, rgb_image, lambda_p=None):
         # Extract multi-scale fused features from backbone
         f1, f2, f3, f4 = self.backbone(rgb_image)
         
+        # Domain classification branch (only if lambda_p is provided)
+        domain_logits = None
+        if lambda_p is not None:
+            f4_grl = GradientReversalLayer.apply(f4, lambda_p)
+            domain_logits = self.domain_classifier(f4_grl)
+
         # Decoder with progressive upsampling and skip connection concatenation
         x = F.interpolate(f4, size=f3.shape[2:], mode='bilinear', align_corners=False)
         x = torch.cat([x, f3], dim=1)
@@ -70,6 +96,8 @@ class MVSSNetLite(nn.Module):
         seg_mask = self.seg_head(x)
         edge_map = self.edge_head(x)
         
+        if lambda_p is not None:
+            return seg_mask, edge_map, domain_logits
         return seg_mask, edge_map
 
 if __name__ == '__main__':
@@ -80,13 +108,15 @@ if __name__ == '__main__':
     rgb_input = torch.randn(2, 3, 224, 224)
     
     # Forward pass
-    seg_mask, edge_map = model(rgb_input)
+    seg_mask, edge_map, domain_logits = model(rgb_input, lambda_p=0.5)
     
     # Print shapes to confirm they match expected
     print("RGB Input shape:", rgb_input.shape)
     print("Segmentation Mask shape:", seg_mask.shape)
     print("Edge Map shape:", edge_map.shape)
+    print("Domain Logits shape:", domain_logits.shape)
     
     assert seg_mask.shape == (2, 1, 224, 224), f"Expected seg_mask shape (2, 1, 224, 224), got {seg_mask.shape}"
     assert edge_map.shape == (2, 1, 224, 224), f"Expected edge_map shape (2, 1, 224, 224), got {edge_map.shape}"
+    assert domain_logits.shape == (2, 2), f"Expected domain_logits shape (2, 2), got {domain_logits.shape}"
     print("Output shapes are correct.")
