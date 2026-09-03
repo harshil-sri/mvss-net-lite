@@ -3,7 +3,7 @@ import sys
 import torch
 from torch.utils.data import DataLoader
 
-from data_pipeline.dataset_loader import ForgeryDataset, get_splits
+from data_pipeline.dataset_loader import ForgeryDataset
 
 # Configuration
 DATA_ROOT = "data_pipeline/raw"
@@ -59,8 +59,6 @@ def test_doctamper():
     rgb, mask, edge = next(iter(loader))
     validate_batch(rgb, mask, edge, "DocTamper")
 
-    train_set, val_set, test_set = get_splits(dataset, train_frac=0.70, val_frac=0.15)
-    print(f"[DocTamper] Split   -- Train: {len(train_set)} | Val: {len(val_set)} | Test: {len(test_set)}")
     print("[DocTamper] PASSED")
     return True
 
@@ -109,8 +107,6 @@ def test_defacto():
     loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=NUM_WORKERS)
     rgb, mask, edge = next(iter(loader))
     validate_batch(rgb, mask, edge, "DEFACTO")
-    train_set, val_set, test_set = get_splits(dataset, train_frac=0.70, val_frac=0.15)
-    print(f"[DEFACTO] Split    -- Train: {len(train_set)} | Val: {len(val_set)} | Test: {len(test_set)}")
     print("[DEFACTO] PASSED")
     return True
 
