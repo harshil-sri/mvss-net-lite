@@ -435,6 +435,30 @@ divergence was detected and avoided.
 
 ---
 
+## 12. Run 5 launched (2026-09-19)
+
+User explicitly said "launch it." Run 5 now runs in tmux session `stage2run5`
+(`bash launch_run5.sh`, not-exec bit absent on the script so invoked via bash).
+
+Startup verified live:
+- `Using device: cuda`; stage1 weights loaded.
+- Loader selected all three datasets; balanced-sampler measured 4 classes:
+  rtm_forged 4835 / rtm_auth 2392 / midv500_forged 3840 / midv500_auth 12085.
+- `Train: 2894 batches | Val: 372 | Test: 366` (29152-selected-23152 math
+  confirmed; +22% corpus vs Run 4's 2396 train batches).
+- Sampler composition log confirms blur-C synthetic (`midv500_forged`) is being
+  fed in-epoch alongside `midv500_authentic` and RTM — DANN/sampler 4-class
+  wiring verified live.
+- Measured ~110 batches/min → ~26 min/epoch. Run 4's early-stop pattern (best
+  val ep8, patience 20 → ~28 trips) suggests a realistic multi-hour-to-overnight
+  run; monitor for the epoch-8 plateau and early-stopping at ~28 if it mirrors
+  Run 4.
+- Checkpoint writes, sampler-composition log, and train log all land under
+  `reports/stage2run5_*` / `model/checkpoints/stage2run5_*.pt`. Launch commit
+  was `2491bd4` (local, unpushed).
+
+---
+
 *End of log.* Anything in here marked *measured* has a backing script/run; the
 master copies of the decomposition and preflight scripts are referenced in
 §3 and §6 and live outside the repo under `/tmp/opencode/`.
