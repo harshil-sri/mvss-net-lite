@@ -141,7 +141,7 @@ def parse_args():
 def log_sampler_composition(log_path, epoch, batch_idx, idx_list, classes):
     """Writes one raw-composition line to stdout and the persistent log file."""
     n = len(idx_list)
-    counts = {'rtm_forged': 0, 'rtm_auth': 0, 'midv500': 0}
+    counts = {'rtm_forged': 0, 'rtm_auth': 0, 'midv500_forged': 0, 'midv500_auth': 0}
     other = 0
     for i in idx_list:
         c = classes[i]
@@ -152,7 +152,8 @@ def log_sampler_composition(log_path, epoch, batch_idx, idx_list, classes):
     line = (f"[sampler] epoch={epoch} batch={batch_idx} n={n} "
             f"rtm_forged={counts['rtm_forged']} ({100.0*counts['rtm_forged']/n:.2f}%) "
             f"rtm_authentic={counts['rtm_auth']} ({100.0*counts['rtm_auth']/n:.2f}%) "
-            f"midv500={counts['midv500']} ({100.0*counts['midv500']/n:.2f}%) "
+            f"midv500_forged={counts['midv500_forged']} ({100.0*counts['midv500_forged']/n:.2f}%) "
+            f"midv500_authentic={counts['midv500_auth']} ({100.0*counts['midv500_auth']/n:.2f}%) "
             f"other={other}")
     print(line)
     with open(log_path, 'a') as f:
@@ -450,9 +451,9 @@ def train(args):
             domain_total = 0
             if args.domain_adversarial and sampler_classes is not None:
                 labels_str = [sampler_classes[idx] for idx in sample_idxs.tolist()]
-                valid_mask = torch.tensor([l in ('rtm_forged', 'rtm_auth', 'midv500') for l in labels_str], device=device)
+                valid_mask = torch.tensor([l in ('rtm_forged', 'rtm_auth', 'midv500_forged', 'midv500_auth') for l in labels_str], device=device)
                 if valid_mask.sum() > 0:
-                    domain_targets = torch.tensor([1 if l == 'midv500' else 0 for l in labels_str], device=device)
+                    domain_targets = torch.tensor([1 if l.startswith('midv500') else 0 for l in labels_str], device=device)
                     domain_logits_valid = domain_logits[valid_mask]
                     domain_targets_valid = domain_targets[valid_mask]
                     

@@ -1,4 +1,5 @@
 import os
+import sys
 import cv2
 import json
 import numpy as np
@@ -17,7 +18,7 @@ def get_quad_from_json(json_path):
     return None
 
 def process_sample(args):
-    idx, img_path, doc_id_to_dir, out_img_dir, out_msk_dir = args
+    idx, img_path, doc_id_to_dir, out_img_dir, out_msk_dir, forced_op = args
     base_name = os.path.basename(img_path)
     parts = base_name.split('_')
     frame_name = parts[2] + '_' + parts[3].split('.')[0]
@@ -54,7 +55,7 @@ def process_sample(args):
     field_keys = [k for k in fields.keys() if 'quad' in fields[k]]
     if not field_keys: return None
     
-    op = random.choice(['copy_move', 'splice'])
+    op = random.choice(['copy_move', 'splice']) if forced_op is None else forced_op
     
     if op == 'copy_move':
         if len(field_keys) < 2:
@@ -75,7 +76,7 @@ def process_sample(args):
         mask = np.zeros((h, w), dtype=np.uint8)
         cv2.fillPoly(mask, [dst_i_quad.astype(np.int32)], 255)
         
-        mask_blurred = cv2.GaussianBlur(mask, (5, 5), 1.5)
+        mask_blurred = cv2.GaussianBlur(mask, (3, 3), 0.75)
         mask_3d = (mask_blurred / 255.0)[..., None]
         
         tampered = (img * (1 - mask_3d) + warped_img * mask_3d).astype(np.uint8)
@@ -110,7 +111,7 @@ def process_sample(args):
         mask = np.zeros((h, w), dtype=np.uint8)
         cv2.fillPoly(mask, [target_field_quad.astype(np.int32)], 255)
         
-        mask_blurred = cv2.GaussianBlur(mask, (5, 5), 1.5)
+        mask_blurred = cv2.GaussianBlur(mask, (3, 3), 0.75)
         mask_3d = (mask_blurred / 255.0)[..., None]
         
         tampered = (img * (1 - mask_3d) + warped_img * mask_3d).astype(np.uint8)
@@ -132,6 +133,9 @@ def process_sample(args):
 
 def main():
     manifest_path = 'reports/manifest.json'
+    spec_file = None
+    if len(sys.argv) > 1 and sys.argv[1] == '--spec-file':
+        spec_file = sys.argv[2]
     with open(manifest_path, 'r') as f:
         manifest = json.load(f)
         
@@ -146,7 +150,17 @@ def main():
     random.seed(42)
     np.random.seed(42)
     
-    to_tamper = random.sample(midv500_authentic, 5000)
+    if spec_file is not None:
+        with open(spec_file, 'r') as f:
+            spec = json.load(f)
+        guide_map = {s['idx']: s for s in spec}
+        to_tamper = [guide_map[i]['image'] for i in range(len(spec))]
+        forced_ops = [guide_map[i]['op'] for i in range(len(spec))]
+        print(f"Using spec file {spec_file}: {len(spec)} guided regenerations (blur change only)")
+    else:
+        to_tamper = random.sample(midv500_authentic, 5000)
+        forced_ops = [None] * len(to_tamper)
+        print("Random draw (default): seed 42 sample of MIDV500 authentic")
     
     doc_id_to_dir = {}
     for d in glob.glob("data/MIDV-500/midv500/*"):
@@ -156,17 +170,19 @@ def main():
             if doc_id.isdigit():
                 doc_id_to_dir[doc_id] = d
                 
-    out_img_dir = 'data_pipeline/raw/MIDV500_synthetic/images'
-    out_msk_dir = 'data_pipeline/raw/MIDV500_synthetic/masks'
+    out_img_dir = 'data_pipeline/raw/MIDV500_synthetic_blurC/images'
+    out_msk_dir = 'data_pipeline/raw/MIDV500_synthetic_blurC/masks'
     os.makedirs(out_img_dir, exist_ok=True)
     os.makedirs(out_msk_dir, exist_ok=True)
     
     synthetic_samples = []
     
-    args_list = [(idx, img, doc_id_to_dir, out_img_dir, out_msk_dir) for idx, img in enumerate(to_tamper)]
+    args_list = [(idx, img, doc_id_to_dir, out_img_dir, out_msk_dir, forced_ops[idx]) for idx, img in enumerate(to_tamper)]
     
     print("Generating forgeries with multiprocessing...")
-    with Pool(processes=cpu_count()) as p:
+    n_workers = min(cpu_count(), int(os.environ.get('SYNTH_N_WORKERS', '16')))
+    print(f"Using {n_workers} workers (capped to protect low-RAM box)")
+    with Pool(processes=n_workers) as p:
         results = list(tqdm(p.imap(process_sample, args_list), total=len(args_list)))
         
     synthetic_samples = [r for r in results if r is not None]

@@ -21,6 +21,10 @@ Everything else (blur settings, sample selection, seeds, stats, reporting) is
 unchanged from v2, which is unchanged from the recovered v1.
 """
 import os
+import argparse
+import traceback
+import psutil
+import time
 import cv2
 import json
 import torch
@@ -121,8 +125,10 @@ def generate_probe_set(midv500_authentic, doc_id_to_dir, blur_setting, output_di
     
     generated = []
     op_counts = {'copy_move': 0, 'splice': 0}
+    skip_count = 0
+    log_file = 'diagnostics/logs/probe_blur_v3_run.log'
     
-    for img_path in to_tamper:
+    for idx_in_list, img_path in enumerate(to_tamper):
         base_name = os.path.basename(img_path)
         parts = base_name.split('_')
         frame_name = parts[2] + '_' + parts[3].split('.')[0]
@@ -232,6 +238,12 @@ def generate_probe_set(midv500_authentic, doc_id_to_dir, blur_setting, output_di
                 mask_3d = (mask_blurred / 255.0)[..., None]
                 tampered = (img * (1 - mask_3d) + warped_img * mask_3d).astype(np.uint8)
         except Exception as e:
+            skip_count += 1
+            os.makedirs(os.path.dirname(log_file), exist_ok=True)
+            with open(log_file, 'a') as lf:
+                lf.write(f"\nEXCEPTION in generate_probe_set | Image Index: {idx_in_list} | Path: {img_path}\n")
+                lf.write(traceback.format_exc())
+                lf.write("\n")
             continue
             
         op_counts[op] += 1
@@ -246,9 +258,9 @@ def generate_probe_set(midv500_authentic, doc_id_to_dir, blur_setting, output_di
         if len(generated) >= num_samples:
             break
             
-    return generated
+    return generated, skip_count
 
-def run_probe():
+def run_probe(num_samples=200, smoketest=False):
     import torchvision.transforms as T
     to_tensor = T.ToTensor()
     
@@ -275,15 +287,28 @@ def run_probe():
         'C (Intermediate)': ((3, 3), 0.75)
     }
     
+    log_dir = 'diagnostics/logs'
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, 'probe_blur_v3_run.log')
+    with open(log_file, 'a') as lf:
+        lf.write(f"\n--- Starting new run at {time.time()} (Smoketest: {smoketest}) ---\n")
+        
     # Pre-compute RTM stats (real forged)
     print("Computing RTM Real Forged Stats...")
     rtm_loader = get_dataloader('RTM', batch_size=1, is_train=False)
     rtm_stats = []
-    for img, mask, _ in tqdm(rtm_loader, total=200):
-        if mask.sum() == 0: continue
-        st = compute_stats(img[0], mask[0])
-        if st: rtm_stats.append(st)
-        if len(rtm_stats) >= 200: break
+    for img, mask, _ in tqdm(rtm_loader, total=num_samples):
+        try:
+            if mask.sum() == 0: continue
+            st = compute_stats(img[0], mask[0])
+            if st: rtm_stats.append(st)
+            if len(rtm_stats) >= num_samples: break
+        except Exception as e:
+            with open(log_file, 'a') as lf:
+                lf.write(f"\nEXCEPTION in RTM Stats Loop\n")
+                lf.write(traceback.format_exc())
+                lf.write("\n")
+            raise
     rtm_summary = summarize_stats(rtm_stats)
     
     for name, bset in blur_settings.items():
@@ -291,8 +316,12 @@ def run_probe():
         print(f"Testing Blur Setting: {name} {bset}")
         print(f"=========================================")
         
-        out_dir = f"data_pipeline/probe_blur_v3_{name.split(' ')[0]}"
-        gen_list = generate_probe_set(midv500_auth, doc_id_to_dir, bset, out_dir, num_samples=200)
+        if smoketest:
+            out_dir = f"data_pipeline/probe_blur_v3_smoketest_{name.split(' ')[0]}"
+        else:
+            out_dir = f"data_pipeline/probe_blur_v3_{name.split(' ')[0]}"
+            
+        gen_list, skip_count = generate_probe_set(midv500_auth, doc_id_to_dir, bset, out_dir, num_samples=num_samples)
         
         synth_stats = []
         auth_stats = []
@@ -307,19 +336,45 @@ def run_probe():
         ds_tampered = ForgeryDataset(tampered_samples, crop_size=256, is_train=False)
         ds_authentic = ForgeryDataset(authentic_samples, crop_size=256, is_train=False)
 
+        start_time = time.time()
         for i in range(len(gen_list)):
-            t_img_t, m_img_t, _ = ds_tampered[i]
-            o_img_t, m_img_o, _ = ds_authentic[i]
+            try:
+                t_img_t, m_img_t, _ = ds_tampered[i]
+                o_img_t, m_img_o, _ = ds_authentic[i]
 
-            st_t = compute_stats(t_img_t, m_img_t)
-            st_o = compute_stats(o_img_t, m_img_o)
+                st_t = compute_stats(t_img_t, m_img_t)
+                st_o = compute_stats(o_img_t, m_img_o)
 
-            if st_t: synth_stats.append(st_t)
-            if st_o: auth_stats.append(st_o)
+                if st_t: synth_stats.append(st_t)
+                if st_o: auth_stats.append(st_o)
+                
+                with open(os.path.join(log_dir, 'incremental_stats.jsonl'), 'a') as f_inc:
+                    f_inc.write(json.dumps({'setting': name, 'index': i, 'st_t': st_t, 'st_o': st_o}) + '\n')
+                
+                elapsed = time.time() - start_time
+                mem = psutil.Process(os.getpid()).memory_info().rss / 1024 / 1024
+                with open(log_file, 'a') as lf:
+                    lf.write(f"Setting: {name} | Image: {i}/{len(gen_list)} | Elapsed: {elapsed:.2f}s | RSS: {mem:.2f} MB\n")
+                    
+            except Exception as e:
+                with open(log_file, 'a') as lf:
+                    lf.write(f"\nEXCEPTION in Setting: {name} | Image: {i}\n")
+                    lf.write(traceback.format_exc())
+                    lf.write("\n")
+                raise
 
+        print(f"--- Setting Summary: {name} ---")
+        print(f"  Target Samples: {num_samples}")
+        print(f"  Successfully Generated: {len(gen_list)}")
+        print(f"  Failed/Skipped: {skip_count}")
         print_summary("Real RTM-Forged (Reference)", rtm_summary)
         print_summary(f"Synthetic MIDV500-Forged", summarize_stats(synth_stats))
         print_summary("MIDV500-Authentic Baseline (Same regions)", summarize_stats(auth_stats))
 
 if __name__ == '__main__':
-    run_probe()
+    parser = argparse.ArgumentParser(description="Run probe blur audit")
+    parser.add_argument('--num-samples', type=int, default=200, help="Target number of samples per setting")
+    parser.add_argument('--smoketest', action='store_true', help="Run in smoketest mode")
+    args = parser.parse_args()
+    
+    run_probe(num_samples=args.num_samples, smoketest=args.smoketest)

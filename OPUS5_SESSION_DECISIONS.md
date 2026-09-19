@@ -376,6 +376,65 @@ per your call), and I will not claim a commit exists that doesn't.
 
 ---
 
+## 11. Follow-up session corrections (must-read before Run 5)
+
+These two corrections change how Run 5 must be interpreted. Both are *measured*
+against the repo, not assumed.
+
+### 11a. Run 4 did NOT train on `MIDV500_synthetic`
+
+The Run 4 launch command is `launch_run4.sh` → `--datasets RTM MIDV500`. The
+loader (`data_pipeline/dataset_loader.py`, `filter_split`) does exact
+`s['dataset'] in dataset_names` matching, so `MIDV500_synthetic` was never
+selected. This is confirmed by four independent signals:
+
+- `reports/stage2run4_train.log`: `Loading datasets: ['RTM', 'MIDV500']`.
+- Batch math: `RTM(7227) + MIDV500(11943) = 19170` train samples → `/8 =
+  2396` batches, matching the logged `Train: 2396 batches`. With synthetic
+  it would be `2894` batches.
+- Sampler composition logs show only the old 3-class scheme
+  (`rtm_forged`, `rtm_auth`, `midv500`) — no `midv500_forged`/`midv500_auth`.
+- Zero occurrences of "synthetic" in the Run 4 training log.
+
+**Implication:** adding `MIDV500_synthetic` (blur-C set) to Run 5 is a
+**deliberate composition change**, not a single-variable blur swap. Run 5 vs
+Run 4 now differs by exactly: (1) addition of the synthetic MIDV500 data, and
+(2) the DANN label-contract fix. Everything else (RTM + MIDV500 core, epochs,
+LR schedule, patience, init weights, balanced sampler) is unchanged.
+
+### 11b. The DANN no-op predates Run 4 — it is a *new-runs-only* bug
+
+The loader was refactored to 4-class labels (`TARGET_CLASSES =
+('rtm_forged', 'rtm_auth', 'midv500_forged', 'midv500_auth')`) in commit
+`59ec1a7` (Sep-03), *after* Run 4 was launched. Run 4 ran on the old 3-class
+scheme, and its domain accuracy (96% → 62-69%, never collapsing to 50%) shows
+DANN was actively training then.
+
+The label-contract mismatch I patched in `model/train.py` therefore only bites
+**new** runs built on the current 4-class loader. The Run 5 "DANN meaningful
+again" result is a fix going forward, not a re-explanation of Run 4's numbers.
+This does not change the patch; just the narrative around it.
+
+### 11c. User decision (explicit): Run 5 = `RTM MIDV500 MIDV500_synthetic`
+
+Given the above, I asked how Run 5 should be composed. User chose:
+**add the corrected blur-C synthetic set.** Run 5 therefore deliberately
+broadens the training corpus versus Run 4, and the comparison will be
+interpreted as a composition + data-quality change, not a single-variable swap.
+
+### 11d. Synthetic set regeneration method (Run 5 data)
+
+To keep the blur change as isolated as *possible* even within the new
+composition, the 5,000-image blur-C set was regenerated **deterministically
+from Run 4's recorded synthetic spec** (`reports/spec_run4_synthetic.json`):
+same `(idx, original_image, op)` tuples, same filenames, same ops — only the
+blur changed (`GaussianBlur(mask, (3,3), 0.75)`). A naive seed-42 re-draw from
+the current manifest would have picked *different* authentic sources (only
+1672/5000 overlapped) and silently changed which forgeries Run 5 sees. That
+divergence was detected and avoided.
+
+---
+
 *End of log.* Anything in here marked *measured* has a backing script/run; the
 master copies of the decomposition and preflight scripts are referenced in
 §3 and §6 and live outside the repo under `/tmp/opencode/`.
