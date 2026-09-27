@@ -12,3 +12,17 @@ def set_page_margins(section):
     section.page_height = Mm(297)
     section.left_margin = Cm(3.5)
     section.top_margin = Cm(2.5)
+    section.right_margin = Cm(1.25)
+    section.bottom_margin = Cm(1.25)
+
+def add_page_number(run):
+    fldChar1 = OxmlElement('w:fldChar')
+    fldChar1.set(qn('w:fldCharType'), 'begin')
+    instrText = OxmlElement('w:instrText')
+    instrText.set(qn('xml:space'), 'preserve')
+    instrText.text = "PAGE"
+    fldChar2 = OxmlElement('w:fldChar')
+    fldChar2.set(qn('w:fldCharType'), 'separate')
+    fldChar3 = OxmlElement('w:fldChar')
+    fldChar3.set(qn('w:fldCharType'), 'end')
+    run._r.append(fldChar1)
