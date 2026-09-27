@@ -26,3 +26,17 @@ def add_page_number(run):
     fldChar3 = OxmlElement('w:fldChar')
     fldChar3.set(qn('w:fldCharType'), 'end')
     run._r.append(fldChar1)
+    run._r.append(instrText)
+    run._r.append(fldChar2)
+    run._r.append(fldChar3)
+
+def set_page_number_format(section, fmt='lowerRoman'):
+    sectPr = section._sectPr
+    pgNumType = OxmlElement('w:pgNumType')
+    pgNumType.set(qn('w:fmt'), fmt)
+    pgNumType.set(qn('w:start'), '1')
+    sectPr.append(pgNumType)
+
+def add_toc(paragraph):
+    run = paragraph.add_run()
+    fldChar1 = OxmlElement('w:fldChar')
