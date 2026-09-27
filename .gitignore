@@ -56,3 +56,14 @@ test.txt
 SKILL.md:Zone.Identifier
 prd.md
 prd.md:Zone.Identifier
+# Workspace and Reports
+tests/
+debug_and_archive/
+workspace/
+docs/papers_and_reports/
+*.pdf
+*.docx
+*.tex
+*.zip
+*.tar.gz
+*.deb
