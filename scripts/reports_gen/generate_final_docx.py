@@ -68,3 +68,17 @@ def add_paragraph(text, size=12, bold=False, align=WD_ALIGN_PARAGRAPH.LEFT, spac
         run = p.add_run(text)
         run.font.name = 'Times New Roman'
         run.font.size = Pt(size)
+        run.font.bold = bold
+        run.font.color.rgb = RGBColor(0,0,0)
+    return p
+
+def style_heading(h, size):
+    for run in h.runs:
+        run.font.name = 'Times New Roman'
+        run.font.size = Pt(size)
+        run.font.bold = True
+        run.font.color.rgb = RGBColor(0,0,0)
+
+# SECTION 1: Front Matter
+section_1 = doc.sections[0]
+set_page_margins(section_1)
