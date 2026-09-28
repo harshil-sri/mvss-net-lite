@@ -82,3 +82,17 @@ def style_heading(h, size):
 # SECTION 1: Front Matter
 section_1 = doc.sections[0]
 set_page_margins(section_1)
+set_page_number_format(section_1, 'lowerRoman')
+
+footer_1 = section_1.footer
+footer_1.is_linked_to_previous = False
+footer_p = footer_1.paragraphs[0]
+footer_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+add_page_number(footer_p.add_run())
+
+for _ in range(5): doc.add_paragraph()
+add_paragraph("SUMMER INTERNSHIP REPORT", size=24, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
+doc.add_paragraph()
+add_paragraph("DOCFORGE", size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
+doc.add_paragraph()
+doc.add_paragraph()
