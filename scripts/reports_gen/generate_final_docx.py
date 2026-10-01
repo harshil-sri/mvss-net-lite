@@ -278,3 +278,17 @@ CONTENT = [
     ("While the current iteration of DocForge represents a substantial advancement in static document forgery detection, several critical avenues for future research and development remain:", 0, 12),
     ("1. Edge-Device Optimization and Quantization: The current high-capacity deep learning model requires substantial GPU resources for inference. Future work must focus on network pruning and INT8 quantization to drastically reduce the model's memory footprint and computational requirements. This would enable direct deployment on edge devices, such as mobile smartphones or embedded document scanners, allowing for real-time verification without reliance on expensive cloud infrastructure or internet connectivity.", 0, 12),
     ("2. Advanced Dataset Expansion: The landscape of digital forgery is constantly evolving. Continuous expansion of the training dataset is critical. Incorporating documents manipulated by highly sophisticated, AI-generated generative adversarial networks (GANs) and modern diffusion models will further robusten the model against next-generation cyber threats.", 0, 12),
+    ("3. Multi-Modal Analysis: Currently, the system relies entirely on visual noise and structural artifacts. Integrating Natural Language Processing (NLP) to analyze the semantic consistency of the document text alongside the visual artifact detection could provide a holistic, multi-modal approach to authenticity verification. For example, detecting if a spliced date makes semantic sense in the context of the rest of the document.", 0, 12),
+    ("4. Real-Time Video Forgery Detection: Expanding the 2D spatial architecture to process 3D temporal data (e.g., using 3D Convolutions or Recurrent Neural Networks) will allow the system to detect manipulations in continuous video streams. This is exceptionally relevant for securing automated identity verification systems (eKYC) against deepfake video attacks and presentation attacks.", 0, 12)
+]
+
+for item in CONTENT:
+    text, level, size = item
+    if level == 1:
+        if text != "# CHAPTER 1: INTRODUCTION TO PROJECT":
+            doc.add_page_break()
+        h = doc.add_heading(text[2:], level=1)
+        style_heading(h, 14)
+    elif level == 2:
+        h = doc.add_heading(text[3:], level=2)
+        style_heading(h, 12)
