@@ -292,3 +292,17 @@ for item in CONTENT:
     elif level == 2:
         h = doc.add_heading(text[3:], level=2)
         style_heading(h, 12)
+    elif level == 3:
+        h = doc.add_heading(text[4:], level=3)
+        style_heading(h, 12)
+    elif level == -1: 
+        if text == "```python":
+            in_code = True
+            code_lines = []
+        elif text == "```":
+            p = doc.add_paragraph()
+            p.paragraph_format.line_spacing = 1.0
+            run = p.add_run("\n".join(code_lines))
+            run.font.name = 'Courier New'
+            run.font.size = Pt(10)
+            in_code = False
