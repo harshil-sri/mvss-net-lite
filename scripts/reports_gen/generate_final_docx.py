@@ -306,3 +306,11 @@ for item in CONTENT:
             run.font.name = 'Courier New'
             run.font.size = Pt(10)
             in_code = False
+        else:
+            code_lines.append(text)
+    else:
+        add_paragraph(text, size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY)
+
+downloads_path = "/mnt/c/Users/Harshil/Downloads/DocForge_Internship_Report_Final.docx"
+doc.save(downloads_path)
+print(f"Saved to {downloads_path}")
