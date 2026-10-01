@@ -250,3 +250,17 @@ CONTENT = [
     ("### 4.1.1 Precision, Recall, and F1-Score", 3, 12),
     ("The evaluation relies on the standard components of a Confusion Matrix. True Positives (TP) represent forged pixels correctly identified as forged. True Negatives (TN) are pristine background pixels correctly identified. False Positives (FP), or Type I errors, represent pristine pixels incorrectly flagged as forged. False Negatives (FN), or Type II errors, represent forged pixels that slipped past the detection system.", 0, 12),
     ("Precision is defined as TP / (TP + FP). In the context of document verification, low precision means the system generates a massive amount of false alarms, which frustrates human operators and erodes trust in the automated system.", 0, 12),
+    ("Recall, defined as TP / (TP + FN), measures the system's sensitivity. High recall is absolutely paramount; a False Negative means a forged legal document or fake identity card successfully bypassed security checks, which carries severe real-world consequences.", 0, 12),
+    ("The F1-Score calculates the harmonic mean of Precision and Recall: 2 * (Precision * Recall) / (Precision + Recall). The harmonic mean is highly sensitive to extreme values; if either Precision or Recall drops significantly, the F1-Score plummets. This forces the model to maintain a balanced detection strategy.", 0, 12),
+    
+    ("### 4.1.2 Intersection over Union (IoU)", 3, 12),
+    ("Intersection over Union (IoU), also known as the Jaccard Index, is the premier stringency metric for semantic segmentation tasks. It calculates the total area of overlap between the predicted forgery mask and the actual ground truth mask, divided by the area of their union: TP / (TP + FP + FN).", 0, 12),
+    ("IoU brutally penalizes both false positives and false negatives simultaneously. Achieving an IoU above 0.8 on highly subtle digital forgeries indicates that the model has not only detected the presence of the manipulation but has traced its boundary with near-human forensic precision.", 0, 12),
+    
+    ("## 4.2 Training Strategy and Loss Functions", 2, 12),
+    ("Training a neural network to detect anomalies that constitute less than 5% of the pixel area requires specialized optimization strategies.", 0, 12),
+    ("The system employs a custom Combined Loss Function. Standard Binary Cross Entropy (BCE) loss treats every pixel equally. To counteract the class imbalance, the BCE component is heavily weighted using a positive-weight scalar, applying a massive mathematical penalty whenever the network misses a forged pixel.", 0, 12),
+    ("However, weighted BCE often leads to bloated, amorphous predictions. To ensure sharp, localized boundaries, the loss function aggregates the BCE loss with a Dice/Region loss. The Dice Loss mathematically optimizes the network directly for spatial overlap (highly correlated with the F1-Score). By jointly minimizing both BCE and Dice loss, the network learns to confidently classify individual pixels while maintaining the structural integrity of the forged region.", 0, 12),
+    ("Furthermore, a WeightedRandomSampler was implemented in the data loader. Instead of feeding batches sequentially, this sampler calculates the statistical distribution of authentic versus forged documents in the dataset and assigns drawing probabilities. This guarantees that every single training batch contains a mathematically balanced ratio of pristine and manipulated examples, stabilizing the gradient descent process.", 0, 12),
+
+    ("## 4.3 Visual Results Analysis", 2, 12),
