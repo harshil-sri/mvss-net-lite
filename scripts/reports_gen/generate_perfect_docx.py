@@ -63,3 +63,16 @@ style.paragraph_format.line_spacing = 1.5
 
 def add_paragraph(text, size=12, bold=False, align=WD_ALIGN_PARAGRAPH.LEFT, spacing=1.5):
     p = doc.add_paragraph()
+    p.alignment = align
+    p.paragraph_format.line_spacing = spacing
+    if text:
+        run = p.add_run(text)
+        run.font.name = 'Times New Roman'
+        run.font.size = Pt(size)
+        run.font.bold = bold
+        run.font.color.rgb = RGBColor(0,0,0)
+    return p
+
+def style_heading(h, size):
+    for run in h.runs:
+        run.font.name = 'Times New Roman'
