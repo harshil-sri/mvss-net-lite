@@ -50,3 +50,16 @@ def add_toc(paragraph):
     fldChar3.set(qn('w:fldCharType'), 'end')
     run._r.append(fldChar1)
     run._r.append(instrText)
+    run._r.append(fldChar2)
+    run._r.append(fldChar3)
+
+doc = Document()
+
+style = doc.styles['Normal']
+font = style.font
+font.name = 'Times New Roman'
+font.size = Pt(12)
+style.paragraph_format.line_spacing = 1.5
+
+def add_paragraph(text, size=12, bold=False, align=WD_ALIGN_PARAGRAPH.LEFT, spacing=1.5):
+    p = doc.add_paragraph()
