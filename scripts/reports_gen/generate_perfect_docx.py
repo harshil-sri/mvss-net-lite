@@ -89,3 +89,16 @@ footer_1 = section_1.footer
 footer_1.is_linked_to_previous = False
 footer_p = footer_1.paragraphs[0]
 footer_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+add_page_number(footer_p.add_run())
+
+# Cover Page
+for _ in range(5): doc.add_paragraph()
+add_paragraph("SUMMER INTERNSHIP REPORT", size=24, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
+doc.add_paragraph()
+add_paragraph("DOCFORGE", size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
+doc.add_paragraph()
+doc.add_paragraph()
+add_paragraph("Submitted in partial fulfillment of the Requirements for the award of Degree of Bachelor of Technology in Artificial Intelligence and Machine Learning (AI/ML)", size=12, align=WD_ALIGN_PARAGRAPH.CENTER)
+for _ in range(3): doc.add_paragraph()
+add_paragraph("Submitted By", size=14, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
+add_paragraph("Name: Harshil Srivastav\nUniversity Roll No.: 35817711624\nSemester: 5th\nAcademic Year: 2026-27", size=14, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
