@@ -76,3 +76,16 @@ def add_paragraph(text, size=12, bold=False, align=WD_ALIGN_PARAGRAPH.LEFT, spac
 def style_heading(h, size):
     for run in h.runs:
         run.font.name = 'Times New Roman'
+        run.font.size = Pt(size)
+        run.font.bold = True
+        run.font.color.rgb = RGBColor(0,0,0)
+
+# Section 1: Front Matter
+section_1 = doc.sections[0]
+set_page_margins(section_1)
+set_page_number_format(section_1, 'lowerRoman')
+
+footer_1 = section_1.footer
+footer_1.is_linked_to_previous = False
+footer_p = footer_1.paragraphs[0]
+footer_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
