@@ -102,3 +102,16 @@ add_paragraph("Submitted in partial fulfillment of the Requirements for the awar
 for _ in range(3): doc.add_paragraph()
 add_paragraph("Submitted By", size=14, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
 add_paragraph("Name: Harshil Srivastav\nUniversity Roll No.: 35817711624\nSemester: 5th\nAcademic Year: 2026-27", size=14, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
+
+doc.add_page_break()
+
+# Declaration
+for _ in range(2): doc.add_paragraph()
+add_paragraph("DECLARATION", size=16, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
+doc.add_paragraph()
+add_paragraph('I hereby declare that the Internship Report entitled "DocForge" is an authentic record of my own work as requirements of Internship during the period from 15.06.2026 to 31.07.2026 for the award of degree of B.Tech. (AIML) School of Engineering and Technology, VIPS-TC.', size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY)
+doc.add_paragraph()
+doc.add_paragraph()
+add_paragraph("(Signature of student)\nHarshil Srivastav\n35817711624\nDate: 25 September 2026", size=12)
+
+doc.add_page_break()
