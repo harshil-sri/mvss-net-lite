@@ -154,3 +154,16 @@ doc.add_paragraph()
 p_toc = doc.add_paragraph()
 add_toc(p_toc)
 add_paragraph("(To update this TOC, right click here in Word and select 'Update Field')", size=10, bold=False, align=WD_ALIGN_PARAGRAPH.CENTER)
+
+# Section 2: Main Chapters
+section_2 = doc.add_section(WD_SECTION.NEW_PAGE)
+set_page_margins(section_2)
+set_page_number_format(section_2, 'decimal')
+footer_2 = section_2.footer
+footer_2.is_linked_to_previous = False
+footer_p2 = footer_2.paragraphs[0]
+footer_p2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+add_page_number(footer_p2.add_run())
+
+
+CONTENT = [
