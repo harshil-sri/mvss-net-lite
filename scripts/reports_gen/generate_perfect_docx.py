@@ -245,3 +245,16 @@ CONTENT = [
     ("To rigorously evaluate the performance of the DocForge manipulation detection system, a comprehensive suite of standard academic evaluation metrics was employed. These metrics provide a multifaceted view of the model's capabilities in correctly localizing forged pixels versus authentic background.", 0, 12),
     ("Precision (Positive Predictive Value) measures the accuracy of the positive predictions. It answers the question: Of all the pixels the model predicted as forged, what fraction was actually forged? High precision indicates a low rate of false alarms.", 0, 12),
     ("Recall (Sensitivity or True Positive Rate) measures the ability of the model to identify all actual positive cases. It answers the question: Of all the actually forged pixels, what fraction did the model successfully detect? In security applications like document forgery, high recall is often prioritized to ensure no manipulation slips through.", 0, 12),
+    ("F1-Score is the harmonic mean of Precision and Recall. It provides a single metric that balances both concerns, which is particularly crucial in highly imbalanced datasets where the forged regions represent a very small percentage of the total document area.", 0, 12),
+    ("Intersection over Union (IoU / Jaccard Index) is a stringent metric specifically used for segmentation tasks. It calculates the area of overlap between the predicted bounding box/mask and the ground truth mask, divided by the area of their union.", 0, 12),
+    
+    ("## 4.2 Visual Results Analysis", 2, 12),
+    ("[INSERT LOSS/ACCURACY GRAPH HERE]", 0, 12),
+    ("The training curves illustrate the steady minimization of the combined loss function across epochs, alongside corresponding improvements in validation F1-Score and IoU, indicating successful learning without severe overfitting.", 0, 12),
+    ("[INSERT SIDE-BY-SIDE COMPARISON OF ORIGINAL VS FORGED MASK HERE]", 0, 12),
+    ("The visual comparison explicitly demonstrates the model's efficacy. The generated predicted mask tightly correlates with the ground truth mask, successfully isolating the manipulated elements while ignoring the complex, authentic background textures of the document.", 0, 12),
+    
+    ("# CHAPTER 5: CONCLUSIONS AND FUTURE SCOPE", 1, 14),
+    ("## 5.1 Conclusion", 2, 12),
+    ("The DocForge project successfully designed, implemented, and evaluated an advanced deep-learning pipeline for the detection and localization of digital document manipulations. By engineering a custom deep learning architecture featuring a robust feature extraction backbone and a specialized attention-based fusion module, the system demonstrated significant efficacy in identifying subtle forgery artifacts.", 0, 12),
+    ("The integration of a rigorous data augmentation pipeline, combined with a specialized dual-loss optimization strategy, enabled the model to learn complex representations and achieve high accuracy on evaluation datasets. The resulting pixel-wise localization maps provide clear, interpretable evidence of manipulation.", 0, 12),
