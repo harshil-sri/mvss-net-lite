@@ -271,3 +271,16 @@ for item in CONTENT:
     if level == 1:
         if text != "# CHAPTER 1: INTRODUCTION TO PROJECT":
             doc.add_page_break()
+        h = doc.add_heading(text[2:], level=1)
+        style_heading(h, 14)
+    elif level == 2:
+        h = doc.add_heading(text[3:], level=2)
+        style_heading(h, 12)
+    elif level == 3:
+        h = doc.add_heading(text[4:], level=3)
+        style_heading(h, 12)
+    elif level == -1: # code block
+        if text == "```python":
+            in_code = True
+            code_lines = []
+        elif text == "```":
