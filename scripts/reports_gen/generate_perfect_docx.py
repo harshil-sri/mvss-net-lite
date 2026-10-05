@@ -258,3 +258,16 @@ CONTENT = [
     ("## 5.1 Conclusion", 2, 12),
     ("The DocForge project successfully designed, implemented, and evaluated an advanced deep-learning pipeline for the detection and localization of digital document manipulations. By engineering a custom deep learning architecture featuring a robust feature extraction backbone and a specialized attention-based fusion module, the system demonstrated significant efficacy in identifying subtle forgery artifacts.", 0, 12),
     ("The integration of a rigorous data augmentation pipeline, combined with a specialized dual-loss optimization strategy, enabled the model to learn complex representations and achieve high accuracy on evaluation datasets. The resulting pixel-wise localization maps provide clear, interpretable evidence of manipulation.", 0, 12),
+    
+    ("## 5.2 Future Scope", 2, 12),
+    ("While the current iteration of DocForge represents a substantial advancement in static document forgery detection, several avenues for future research remain:", 0, 12),
+    ("1. Edge-Device Deployment: Future work will focus on optimizing and quantizing the deep learning model to significantly reduce its memory footprint and computational requirements, enabling deployment on mobile smartphones or standalone scanners.", 0, 12),
+    ("2. Dataset Expansion: Continuous expansion of the training dataset to incorporate documents with highly sophisticated, AI-generated generative adversarial network (GAN) forgeries.", 0, 12),
+    ("3. Real-Time Video Detection: Expanding the architecture to process temporal data will allow the system to detect manipulations in video streams, such as deepfake identity verification systems.", 0, 12)
+]
+
+for item in CONTENT:
+    text, level, size = item
+    if level == 1:
+        if text != "# CHAPTER 1: INTRODUCTION TO PROJECT":
+            doc.add_page_break()
