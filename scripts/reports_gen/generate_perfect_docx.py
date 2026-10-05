@@ -284,3 +284,16 @@ for item in CONTENT:
             in_code = True
             code_lines = []
         elif text == "```":
+            p = doc.add_paragraph()
+            p.paragraph_format.line_spacing = 1.0
+            run = p.add_run("\n".join(code_lines))
+            run.font.name = 'Courier New'
+            run.font.size = Pt(10)
+            in_code = False
+        else:
+            code_lines.append(text)
+    else:
+        add_paragraph(text, size=12, align=WD_ALIGN_PARAGRAPH.JUSTIFY)
+
+downloads_path = "/mnt/c/Users/Harshil/Downloads/DocForge_Internship_Report_Curated.docx"
+doc.save(downloads_path)
