@@ -297,3 +297,4 @@ for item in CONTENT:
 
 downloads_path = "/mnt/c/Users/Harshil/Downloads/DocForge_Internship_Report_Curated.docx"
 doc.save(downloads_path)
+print(f"Saved to {downloads_path}")
