@@ -58,3 +58,13 @@ def add_paragraph(text, size=12, bold=False, align=WD_ALIGN_PARAGRAPH.LEFT, spac
     
     if text:
         run = p.add_run(text)
+        run.font.name = 'Times New Roman'
+        run.font.size = Pt(size)
+        run.font.bold = bold
+    return p
+
+# Section 1: Front Matter
+section_1 = doc.sections[0]
+set_page_margins(section_1)
+set_page_number_format(section_1, 'lowerRoman')
+
