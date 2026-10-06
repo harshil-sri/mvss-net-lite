@@ -38,3 +38,13 @@ def set_page_number_format(section, fmt='lowerRoman'):
     sectPr = section._sectPr
     pgNumType = OxmlElement('w:pgNumType')
     pgNumType.set(qn('w:fmt'), fmt)
+    # Start at 1
+    pgNumType.set(qn('w:start'), '1')
+    sectPr.append(pgNumType)
+
+doc = Document()
+
+# Set up global style
+style = doc.styles['Normal']
+font = style.font
+font.name = 'Times New Roman'
