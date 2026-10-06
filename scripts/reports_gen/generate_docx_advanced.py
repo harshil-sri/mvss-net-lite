@@ -48,3 +48,13 @@ doc = Document()
 style = doc.styles['Normal']
 font = style.font
 font.name = 'Times New Roman'
+font.size = Pt(12)
+style.paragraph_format.line_spacing = 1.5
+
+def add_paragraph(text, size=12, bold=False, align=WD_ALIGN_PARAGRAPH.LEFT, spacing=1.5):
+    p = doc.add_paragraph()
+    p.alignment = align
+    p.paragraph_format.line_spacing = spacing
+    
+    if text:
+        run = p.add_run(text)
