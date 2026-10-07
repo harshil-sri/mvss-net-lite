@@ -68,3 +68,13 @@ section_1 = doc.sections[0]
 set_page_margins(section_1)
 set_page_number_format(section_1, 'lowerRoman')
 
+# Footer for Section 1
+footer_1 = section_1.footer
+footer_1.is_linked_to_previous = False
+footer_p = footer_1.paragraphs[0]
+footer_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+footer_run = footer_p.add_run()
+add_page_number(footer_run)
+
+# Cover Page
+for _ in range(5): doc.add_paragraph()
