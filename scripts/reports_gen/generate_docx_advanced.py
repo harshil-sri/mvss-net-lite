@@ -148,3 +148,13 @@ add_paragraph("[INSERT AUTO-GENERATED LIST OF TABLES HERE]", size=12, align=WD_A
 # Section 2: Main Chapters
 section_2 = doc.add_section(WD_SECTION.NEW_PAGE)
 set_page_margins(section_2)
+set_page_number_format(section_2, 'decimal')
+
+# Footer for Section 2
+footer_2 = section_2.footer
+footer_2.is_linked_to_previous = False
+footer_p2 = footer_2.paragraphs[0]
+footer_p2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+footer_run2 = footer_p2.add_run()
+add_page_number(footer_run2)
+
