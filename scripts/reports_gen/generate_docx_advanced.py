@@ -158,3 +158,13 @@ footer_p2.alignment = WD_ALIGN_PARAGRAPH.CENTER
 footer_run2 = footer_p2.add_run()
 add_page_number(footer_run2)
 
+# Read the rest of the body from the generated markdown artifact
+md_path = "/home/harshil/.gemini/antigravity-ide/brain/4d734d0a-9ed6-4d39-bb88-9c03960e4cee/docforge_internship_report.md"
+
+with open(md_path, 'r', encoding='utf-8') as f:
+    lines = f.readlines()
+
+in_body = False
+in_code = False
+code_lines = []
+
