@@ -188,3 +188,13 @@ for line in lines:
             run.font.size = Pt(10)
             code_lines = []
         else:
+            in_code = True
+        continue
+        
+    if in_code:
+        code_lines.append(line)
+        continue
+        
+    if not stripped:
+        continue
+        
