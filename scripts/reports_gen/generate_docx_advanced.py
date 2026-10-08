@@ -168,3 +168,13 @@ in_body = False
 in_code = False
 code_lines = []
 
+for line in lines:
+    if line.strip() == "# CHAPTER 1: INTRODUCTION TO PROJECT":
+        in_body = True
+    
+    if not in_body:
+        continue
+        
+    stripped = line.strip()
+    
+    if stripped.startswith("```"):
