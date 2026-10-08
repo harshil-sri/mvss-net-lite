@@ -138,3 +138,13 @@ doc.add_page_break()
 for _ in range(2): doc.add_paragraph()
 add_paragraph("TABLE OF CONTENTS", size=14, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
 add_paragraph("[INSERT AUTO-GENERATED TABLE OF CONTENTS HERE]", size=12, align=WD_ALIGN_PARAGRAPH.CENTER)
+doc.add_page_break()
+add_paragraph("LIST OF FIGURES", size=14, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
+add_paragraph("[INSERT AUTO-GENERATED LIST OF FIGURES HERE]", size=12, align=WD_ALIGN_PARAGRAPH.CENTER)
+doc.add_page_break()
+add_paragraph("LIST OF TABLES", size=14, bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
+add_paragraph("[INSERT AUTO-GENERATED LIST OF TABLES HERE]", size=12, align=WD_ALIGN_PARAGRAPH.CENTER)
+
+# Section 2: Main Chapters
+section_2 = doc.add_section(WD_SECTION.NEW_PAGE)
+set_page_margins(section_2)
