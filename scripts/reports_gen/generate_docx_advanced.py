@@ -178,3 +178,13 @@ for line in lines:
     stripped = line.strip()
     
     if stripped.startswith("```"):
+        if in_code:
+            in_code = False
+            # write code block
+            p = doc.add_paragraph()
+            p.paragraph_format.line_spacing = 1.0
+            run = p.add_run("".join(code_lines))
+            run.font.name = 'Courier New'
+            run.font.size = Pt(10)
+            code_lines = []
+        else:
