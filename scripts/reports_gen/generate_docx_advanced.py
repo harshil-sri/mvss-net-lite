@@ -198,3 +198,13 @@ for line in lines:
     if not stripped:
         continue
         
+    if stripped.startswith("# "):
+        # Check if it's the first chapter so we don't add duplicate page break
+        if stripped != "# CHAPTER 1: INTRODUCTION TO PROJECT":
+            doc.add_page_break()
+        add_paragraph(stripped[2:], size=14, bold=True, align=WD_ALIGN_PARAGRAPH.LEFT)
+    elif stripped.startswith("## "):
+        add_paragraph(stripped[3:], size=12, bold=True)
+    elif stripped.startswith("### "):
+        add_paragraph(stripped[4:], size=12, bold=True)
+    else:
