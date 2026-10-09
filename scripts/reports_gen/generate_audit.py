@@ -40,3 +40,17 @@ with open(os.path.join(out_dir, "01_REPOSITORY_MAP.md"), "w") as f:
 - **TODO/FIXME:** Present in experiment scripts regarding random seeds.
 - **Hardcoded Thresholds:** Found in evaluation scripts; a fixed $0.5$ threshold was frequently used instead of dynamically calibrated thresholds, heavily confounding the FPR results.
 - **Baselines:** ResNet-UNet-FPN is implemented locally (`pathb_network.py`). DANN and Group-DRO logs exist but show failures.
+""")
+
+# 02_MODEL_ARCHITECTURE.md
+with open(os.path.join(out_dir, "02_MODEL_ARCHITECTURE.md"), "w") as f:
+    f.write("""# Actual Model Specification
+
+1. **Backbone:** Dual ResNet-34 (IMPLEMENTED: `model/backbone.py`)
+2. **Backbone variant:** Standard ResNet-34 stem and stages, frozen early layers (`model/freezing.py`).
+3. **RGB branch:** Standard ResNet-34 taking RGB.
+4. **Noise/residual branch:** Constrained BayarConv extraction followed by ResNet-34.
+5. **Fusion mechanism:** CBAM block per stage (IMPLEMENTED: `model/network.py`).
+6. **Attention mechanisms:** Spatial and Channel attention within CBAM.
+7. **Decoder:** Multi-scale feature aggregation (UNet-like upsampling).
+8. **Final prediction head:** Segmentation head yielding pixel-wise logits.
