@@ -26,3 +26,17 @@ This dossier contains a comprehensive, brutal, and forensically accurate audit o
 """)
 
 # 01_REPOSITORY_MAP.md
+with open(os.path.join(out_dir, "01_REPOSITORY_MAP.md"), "w") as f:
+    f.write("""# Repository Map & Reconnaissance
+
+## Structure
+- `model/` (contains `network.py`, `backbone.py`, `pathb_network.py`): Architecture definitions.
+- `reports/`: JSON logs (e.g., `baserate_experiment_run4.json`), logs of experiment runs.
+- `diagnostics/`: Scripts for evaluating threshold behaviors and FPR.
+- `workspace/version 1/`: Original paper draft (Oct 3).
+- `workspace/version 2/`: Orchestrated paper draft (Candidate final).
+
+## Flags Found
+- **TODO/FIXME:** Present in experiment scripts regarding random seeds.
+- **Hardcoded Thresholds:** Found in evaluation scripts; a fixed $0.5$ threshold was frequently used instead of dynamically calibrated thresholds, heavily confounding the FPR results.
+- **Baselines:** ResNet-UNet-FPN is implemented locally (`pathb_network.py`). DANN and Group-DRO logs exist but show failures.
