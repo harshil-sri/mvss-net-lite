@@ -54,3 +54,17 @@ with open(os.path.join(out_dir, "02_MODEL_ARCHITECTURE.md"), "w") as f:
 6. **Attention mechanisms:** Spatial and Channel attention within CBAM.
 7. **Decoder:** Multi-scale feature aggregation (UNet-like upsampling).
 8. **Final prediction head:** Segmentation head yielding pixel-wise logits.
+9. **Parameter count:** ~45M+ (Dual ResNet-34 + Decoder).
+10. **Differences from MVSS-Net:** Uses ResNet-34 instead of ResNet-50. Replaces thick morphological edges with Canny edge extraction (DESCRIBED, need to verify if actively used in final loss). Fuses via CBAM instead of dense cross-attention.
+
+**Verdict:** The architecture matches the claims in Version 2, though "lightweight" is a relative term compared to MVSS-Net-50.
+""")
+
+# 03_DATASETS.md
+with open(os.path.join(out_dir, "03_DATASETS.md"), "w") as f:
+    f.write("""# Dataset Audit
+
+- **Datasets Used:** RTM (Robust Test Model / Synthetic), CASIA (implied/used for cross-domain).
+- **Leakage Assessment:** 
+  - *Domain Leakage:* Cross-domain tests explicitly use separated domains. However, the exact splits (which RTM variants are in train vs. test) require careful boundary checks.
+  - *Pre-processing Leakage:* Image resolutions were standardized (e.g., 256x256 due to RAM limits). This aggressive downscaling fundamentally alters high-frequency noise artifacts, acting as an unintended low-pass filter. The paper MUST acknowledge this limitation.
