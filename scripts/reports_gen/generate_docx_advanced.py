@@ -208,3 +208,13 @@ for line in lines:
     elif stripped.startswith("### "):
         add_paragraph(stripped[4:], size=12, bold=True)
     else:
+        # Handling basic bold inline formatting
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        p.paragraph_format.line_spacing = 1.5
+        
+        parts = re.split(r'(\*\*.*?\*\*)', stripped)
+        for part in parts:
+            if part.startswith('**') and part.endswith('**'):
+                run = p.add_run(part[2:-2])
+                run.font.name = 'Times New Roman'
