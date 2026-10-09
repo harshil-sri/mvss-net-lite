@@ -218,3 +218,13 @@ for line in lines:
             if part.startswith('**') and part.endswith('**'):
                 run = p.add_run(part[2:-2])
                 run.font.name = 'Times New Roman'
+                run.font.size = Pt(12)
+                run.bold = True
+            else:
+                run = p.add_run(part)
+                run.font.name = 'Times New Roman'
+                run.font.size = Pt(12)
+
+downloads_path = "/mnt/c/Users/Harshil/Downloads/DocForge_Internship_Report_Formatted.docx"
+doc.save(downloads_path)
+print(f"Saved to {downloads_path}")
