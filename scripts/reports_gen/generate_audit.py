@@ -124,3 +124,17 @@ with open(os.path.join(out_dir, "07_STATISTICAL_AUDIT.md"), "w") as f:
 - **Multiple Seeds:** Internal logs explicitly warn that "Seed-42 decorrelation win did NOT replicate across seeds." The authors successfully caught this, but the final paper MUST NOT claim decorrelation works.
 - **Threshold Selection:** Post-hoc threshold analysis (fixing recall at 85%) was used to compare DANN/DRO/ERM evenly. This is statistically sound for comparing architectures but relies on access to test distributions to calibrate.
 - **Missing Variance:** The base-rate sweep lists single FPR values per base rate. Error bars (variance across seeds) are missing for the main base-rate sweep.
+
+**Flag:** $n=5$ for the correlation is a reviewer attack vector. The causal nature (changing *only* the base rate) defends it, but the low $n$ should be explicitly acknowledged.
+""")
+
+# 08_COMPUTATIONAL_AUDIT.md
+with open(os.path.join(out_dir, "08_COMPUTATIONAL_AUDIT.md"), "w") as f:
+    f.write("""# Computational Efficiency Audit
+
+- **Hardware:** 7.8 GB RAM + 4 GB swap.
+- **Resolution:** 256x256 (downscaled heavily).
+- **Batch Size:** Micro-batch 2 $\times$ accum 4.
+- **Architecture:** Dual ResNet-34.
+
+**Verdict:** Calling it "lightweight" is defensible *only relative to the original MVSS-Net (ResNet-50)*. However, a Dual ResNet-34 is objectively heavy for edge deployment. The paper must frame "lightweight" carefully as "resource-constrained trainable" rather than "mobile-ready."
