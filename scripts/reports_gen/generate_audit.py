@@ -278,3 +278,17 @@ master_results = [
         "source_file": "paper1_plan.md",
         "source_line_or_artifact": "DANN FPR approx 0.36",
         "reproducible": True,
+        "notes": "Domain-Adversarial Neural Network fails to improve ERM."
+    },
+    {
+        "experiment_id": "EXP-03",
+        "metric": "FPR at 85% Recall",
+        "value": 1.00,
+        "unit": "rate",
+        "dataset": "RTM",
+        "model": "Group DRO",
+        "split": "Cross-Domain",
+        "seed": "UNKNOWN",
+        "source_file": "paper1_plan.md",
+        "source_line_or_artifact": "Group DRO FPR approx 1.00",
+        "reproducible": True,
