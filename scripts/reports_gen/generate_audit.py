@@ -152,3 +152,17 @@ with open(os.path.join(out_dir, "09_REPRODUCIBILITY.md"), "w") as f:
 
 # 10_CLAIM_EVIDENCE_MATRIX.md
 with open(os.path.join(out_dir, "10_CLAIM_EVIDENCE_MATRIX.md"), "w") as f:
+    f.write("""# Claim/Evidence Matrix
+
+| Claim | Evidence in Repo | Status | Recommended Wording |
+|---|---|---|---|
+| Authentic FPR correlates perfectly with training base rate. | `baserate_experiment_run4.json` yields $\rho=1.0$ across 5 rates. | Directly Supported | "Experiments show a monotonic relationship ($\rho=1.0$) between training forgery prevalence and authentic-image false positive rates." |
+| Random initialization separates domains. | Internal logs state ~80% separability. | Directly Supported | "Control experiments using randomly initialized weights demonstrate strong baseline domain separability." |
+| Breaking domain-label correlation fixes the generalization. | Decorrelation failed across seeds. | **CONTRADICTED** | *Remove entirely.* Frame as a negative result: structural mitigations fail to resolve the base-rate prior. |
+| MVSS-Net-Lite is lightweight. | Dual ResNet-34. | Partially Supported | "MVSS-Net-Lite introduces a reduced-parameter architecture compared to standard ResNet-50 variants..." |
+| DANN and DRO fail to mitigate FPR shift. | At 85% recall: DANN (0.36), ERM (0.34), DRO (1.00). | Directly Supported | "Standard domain generalization techniques (DANN, Group-DRO) fail to mitigate the false-positive shift." |
+""")
+
+# 11_NOVELTY_AUDIT.md
+with open(os.path.join(out_dir, "11_NOVELTY_AUDIT.md"), "w") as f:
+    f.write("""# Novelty Audit
