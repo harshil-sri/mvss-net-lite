@@ -110,3 +110,17 @@ This is the crown jewel of the research.
    - MVSS-Net-Lite: $\rho = 1.0$ (Spearman), $r = 0.84$ (Pearson). Auth-FP sweep: $\{0.010, 0.751, 0.825, 0.997, 1.000\}$.
    - ResNet-UNet-FPN: $\rho = 0.90$.
 3. **Random Init Control:** Untrained networks still perfectly separate domains (~80% AUC), proving that architectural inductive biases cluster domains *before* any semantic learning occurs.
+4. **Threshold Behavior:** The findings suggest that the network learns a "default firing prior" based on base rates, causing the decision hyperplane to shift. Using a fixed threshold ($0.5$) exposes this, whereas per-domain calibrated thresholds might hide it.
+5. **Mitigations:** ERM, DANN, and Group DRO failed to fix the fundamental prior shift.
+
+**Verdict:** The numbers (0.34, 0.36, 1.00 FPR) and correlations ($\rho=1.0$) are explicitly logged and validated by the internal `paper1_plan.md` evidence matrix.
+""")
+
+# 07_STATISTICAL_AUDIT.md
+with open(os.path.join(out_dir, "07_STATISTICAL_AUDIT.md"), "w") as f:
+    f.write("""# Statistical Audit
+
+- **Sample Size (Sweep):** 5 points for the base rate sweep ($n=5$). This is extremely small for Pearson correlation ($r=0.84$), though Spearman rank correlation ($\rho=1.0$) is robust to the monotonic trend.
+- **Multiple Seeds:** Internal logs explicitly warn that "Seed-42 decorrelation win did NOT replicate across seeds." The authors successfully caught this, but the final paper MUST NOT claim decorrelation works.
+- **Threshold Selection:** Post-hoc threshold analysis (fixing recall at 85%) was used to compare DANN/DRO/ERM evenly. This is statistically sound for comparing architectures but relies on access to test distributions to calibrate.
+- **Missing Variance:** The base-rate sweep lists single FPR values per base rate. Error bars (variance across seeds) are missing for the main base-rate sweep.
