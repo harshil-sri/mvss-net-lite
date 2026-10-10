@@ -250,3 +250,17 @@ master_results = [
         "source_file": "paper1_plan.md",
         "source_line_or_artifact": "r=0.84",
         "reproducible": True,
+        "notes": "Linear correlation for the base rate sweep."
+    },
+    {
+        "experiment_id": "EXP-03",
+        "metric": "FPR at 85% Recall",
+        "value": 0.34,
+        "unit": "rate",
+        "dataset": "RTM",
+        "model": "ERM Baseline",
+        "split": "Cross-Domain",
+        "seed": "UNKNOWN",
+        "source_file": "paper1_plan.md",
+        "source_line_or_artifact": "ERM FPR approx 0.34",
+        "reproducible": True,
