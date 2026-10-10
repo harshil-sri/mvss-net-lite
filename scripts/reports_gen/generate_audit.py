@@ -222,3 +222,17 @@ with open(os.path.join(out_dir, "14_FINAL_RESEARCH_AUDIT.md"), "w") as f:
 15. **Overall research maturity:** **PAPER-READY WITH REVISIONS.** The negative results and diagnostic insights are highly publishable, provided the architectural claims are strictly reigned in.
 """)
 
+# MASTER_RESULTS.json
+master_results = [
+    {
+        "experiment_id": "EXP-01",
+        "metric": "Spearman Rho",
+        "value": 1.0,
+        "unit": "correlation",
+        "dataset": "RTM",
+        "model": "MVSS-Net-Lite",
+        "split": "Test",
+        "seed": 42,
+        "source_file": "reports/baserate_experiment_run4.json",
+        "source_line_or_artifact": "Base rate sweep {0, .25, .5, .75, 1.0}",
+        "reproducible": True,
