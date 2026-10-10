@@ -264,3 +264,17 @@ master_results = [
         "source_file": "paper1_plan.md",
         "source_line_or_artifact": "ERM FPR approx 0.34",
         "reproducible": True,
+        "notes": "Baseline standard training."
+    },
+    {
+        "experiment_id": "EXP-03",
+        "metric": "FPR at 85% Recall",
+        "value": 0.36,
+        "unit": "rate",
+        "dataset": "RTM",
+        "model": "DANN",
+        "split": "Cross-Domain",
+        "seed": "UNKNOWN",
+        "source_file": "paper1_plan.md",
+        "source_line_or_artifact": "DANN FPR approx 0.36",
+        "reproducible": True,
