@@ -138,3 +138,17 @@ with open(os.path.join(out_dir, "08_COMPUTATIONAL_AUDIT.md"), "w") as f:
 - **Architecture:** Dual ResNet-34.
 
 **Verdict:** Calling it "lightweight" is defensible *only relative to the original MVSS-Net (ResNet-50)*. However, a Dual ResNet-34 is objectively heavy for edge deployment. The paper must frame "lightweight" carefully as "resource-constrained trainable" rather than "mobile-ready."
+""")
+
+# 09_REPRODUCIBILITY.md
+with open(os.path.join(out_dir, "09_REPRODUCIBILITY.md"), "w") as f:
+    f.write("""# Reproducibility Audit
+
+**Score: MEDIUM**
+
+- **Pros:** The architectural definitions (`network.py`, `backbone.py`) and experiment logs are highly detailed. The exact hyperparameters (lr=0.0001, epochs=4, pos_weight=100) are recorded in JSON configs.
+- **Cons:** The exact dataset loading scripts and preprocessing pipelines for RTM/CASIA are undocumented in the immediate trace. The extreme downsampling (256x256) is a necessary reproducibility detail that might be overlooked by readers expecting standard 512+ resolution for forensics.
+""")
+
+# 10_CLAIM_EVIDENCE_MATRIX.md
+with open(os.path.join(out_dir, "10_CLAIM_EVIDENCE_MATRIX.md"), "w") as f:
