@@ -208,3 +208,17 @@ with open(os.path.join(out_dir, "14_FINAL_RESEARCH_AUDIT.md"), "w") as f:
 1. **Core contribution:** The identification of training base-rate (prevalence) as the dominant causal driver of cross-domain false positives, masquerading as feature shift.
 2. **Strongest result:** The base-rate sweep yielding a perfectly monotonic $\rho=1.0$ relationship, cleanly isolating the causal variable.
 3. **Weakest result:** The statistical power of the base-rate sweep ($n=5$ points) without explicit variance across multiple seeds for every point.
+4. **Biggest methodological weakness:** Severe downscaling to 256x256 due to compute constraints, destroying high-frequency forensic noise.
+5. **Biggest reproducibility weakness:** Lack of a frozen, public dataset distribution script for the exact RTM subsets used.
+6. **Biggest statistical weakness:** Relying on single runs or discovering a failure only after multi-seed replication (the seed-42 fluke).
+7. **Biggest novelty risk:** Positioning the paper as an "Architecture" paper rather than a "Diagnostic/Analysis" paper.
+8. **Biggest reviewer attack vector:** "You only tested on 256x256 resolution, of course your model learned a dataset-level prior instead of forensic noise."
+9. **Most important missing experiment:** Testing if a dynamically calibrated, domain-specific decision threshold (e.g., using a validation set from the target domain) mathematically zeroes out the FPR shift.
+10. **Claims that must be weakened:** "MVSS-Net-Lite solves domain generalization" $\rightarrow$ "MVSS-Net-Lite exposes the causal limits of domain generalization."
+11. **Claims that are safe:** The diagnostic findings, the failure of DANN/DRO, and the $\rho=1.0$ correlation.
+12. **Experiments that should be added:** A sweep at 512x512 (if compute allows) to see if the base-rate reliance vanishes when true forensic noise is preserved.
+13. **Figures/tables that should be added:** A clear table comparing Seed 42 (fluke) vs Seed X (failure) for the decorrelation loss, showing intellectual honesty.
+14. **Things that should be removed:** Any optimistic language about decorrelation fixing the issue.
+15. **Overall research maturity:** **PAPER-READY WITH REVISIONS.** The negative results and diagnostic insights are highly publishable, provided the architectural claims are strictly reigned in.
+""")
+
