@@ -194,3 +194,17 @@ with open(os.path.join(out_dir, "13_PAPER_CODE_CONSISTENCY.md"), "w") as f:
 - Random initialization separability (~80%).
 
 **LIST B: Unsupported / Impossible to Verify / Contradicted**
+- Any claim that decorrelation or balancing *solves* the issue (Contradicted by multi-seed failure).
+- Claims of "state-of-the-art" accuracy (Unsupported; the model was trained under extreme hardware constraints, 256px resolution, and the focus is diagnostic, not SOTA metrics).
+
+**Findings to Add:**
+- Explicitly disclose the 256x256 resolution and the 7.8GB RAM constraint as a methodological motivation for the findings.
+""")
+
+# 14_FINAL_RESEARCH_AUDIT.md
+with open(os.path.join(out_dir, "14_FINAL_RESEARCH_AUDIT.md"), "w") as f:
+    f.write("""# Final Research Audit Assessment
+
+1. **Core contribution:** The identification of training base-rate (prevalence) as the dominant causal driver of cross-domain false positives, masquerading as feature shift.
+2. **Strongest result:** The base-rate sweep yielding a perfectly monotonic $\rho=1.0$ relationship, cleanly isolating the causal variable.
+3. **Weakest result:** The statistical power of the base-rate sweep ($n=5$ points) without explicit variance across multiple seeds for every point.
