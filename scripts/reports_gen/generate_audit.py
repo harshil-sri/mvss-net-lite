@@ -180,3 +180,17 @@ with open(os.path.join(out_dir, "12_FAILURES_AND_CONTRADICTIONS.md"), "w") as f:
 
 1. **The Decorrelation Fluke:** The initial run at Seed 42 showed a massive win for a feature decorrelation loss. Subsequent runs across different seeds completely eliminated this gain. The repository explicitly acknowledges this ("did NOT replicate"). The paper must not claim this works.
 2. **Group DRO Collapse:** Group DRO didn't just fail to improve ERM; it caused a catastrophic collapse (FPR = 1.00 at 85% recall).
+3. **Downsampling Confounder:** 256x256 resolution fundamentally destroys pixel-level noise artifacts. The network is forced to learn structural shortcuts because the forensic signal is wiped out. This is a severe failure mode of the hardware constraint, though it elegantly leads to the discovery of the base-rate shortcut.
+""")
+
+# 13_PAPER_CODE_CONSISTENCY.md
+with open(os.path.join(out_dir, "13_PAPER_CODE_CONSISTENCY.md"), "w") as f:
+    f.write("""# Paper ↔ Code Consistency
+
+**LIST A: Fully Supported by Code**
+- Dual ResNet-34 architecture with CBAM.
+- $\rho=1.0$ monotonic correlation between base rate and FPR.
+- The failure of ERM, DANN, and Group DRO (FPR numbers match exact internal logs).
+- Random initialization separability (~80%).
+
+**LIST B: Unsupported / Impossible to Verify / Contradicted**
