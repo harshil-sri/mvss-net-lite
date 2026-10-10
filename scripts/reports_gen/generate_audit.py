@@ -68,3 +68,17 @@ with open(os.path.join(out_dir, "03_DATASETS.md"), "w") as f:
 - **Leakage Assessment:** 
   - *Domain Leakage:* Cross-domain tests explicitly use separated domains. However, the exact splits (which RTM variants are in train vs. test) require careful boundary checks.
   - *Pre-processing Leakage:* Image resolutions were standardized (e.g., 256x256 due to RAM limits). This aggressive downscaling fundamentally alters high-frequency noise artifacts, acting as an unintended low-pass filter. The paper MUST acknowledge this limitation.
+- **Mask Generation:** Canny edge masks used for auxiliary boundary loss (if active).
+
+**Critical Risk:** The 256x256 limit (enforced by the 7.8GB RAM constraint) compromises high-frequency forensic noise. This is documented in the project logs and must be transparent in the paper.
+""")
+
+# 04_EXPERIMENT_INVENTORY.md
+with open(os.path.join(out_dir, "04_EXPERIMENT_INVENTORY.md"), "w") as f:
+    f.write("""# Experiment Inventory
+
+| ID | Purpose | Model | Setup | Result | Artifact | Status |
+|---|---|---|---|---|---|---|
+| EXP-01 | Base Rate Sweep | MVSS-Lite | Train with $b \in \{0, .25, .5, .75, 1.0\}$ | Auth-FPR strongly correlates with $b$ ($\rho=1.0$) | `baserate_experiment_run4.json` | Reproducible |
+| EXP-02 | Random Init Control | MVSS-Lite | Untrained weights, linear probe | ~80% AUC separability on decision layer | `reports/` | Reproducible |
+| EXP-03 | DG Mitigations (DANN/DRO) | MVSS/UNet | Standard DG setups | DANN FPR=0.36, DRO FPR=1.00 at 85% recall | `paper1_plan.md` logs | Failed (Negative Result) |
