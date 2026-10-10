@@ -82,3 +82,17 @@ with open(os.path.join(out_dir, "04_EXPERIMENT_INVENTORY.md"), "w") as f:
 | EXP-01 | Base Rate Sweep | MVSS-Lite | Train with $b \in \{0, .25, .5, .75, 1.0\}$ | Auth-FPR strongly correlates with $b$ ($\rho=1.0$) | `baserate_experiment_run4.json` | Reproducible |
 | EXP-02 | Random Init Control | MVSS-Lite | Untrained weights, linear probe | ~80% AUC separability on decision layer | `reports/` | Reproducible |
 | EXP-03 | DG Mitigations (DANN/DRO) | MVSS/UNet | Standard DG setups | DANN FPR=0.36, DRO FPR=1.00 at 85% recall | `paper1_plan.md` logs | Failed (Negative Result) |
+| EXP-04 | Decorrelation Regularizer | MVSS-Lite | Seed 42 | Looked like a win, failed on other seeds | `paper1_plan.md` notes | **Contradicted (Fluke)** |
+
+**Note:** The decorrelation failure is explicitly noted in internal logs but must NOT be claimed as a success in the paper.
+""")
+
+# 05_BASELINES.md
+with open(os.path.join(out_dir, "05_BASELINES.md"), "w") as f:
+    f.write("""# Baseline Audit
+
+1. **ResNet-UNet-FPN:** Implemented locally (`model/pathb_network.py`). Used as a contrast to dual-branch networks. Showed $\rho=0.90$ base rate correlation (compared to MVSS-Net-Lite's $\rho=1.0$).
+2. **ERM (Empirical Risk Minimization):** Standard training. Yielded FPR ~0.34 at 85% recall.
+3. **DANN (Domain-Adversarial Neural Network):** Yielded FPR ~0.36 at 85% recall. Not an improvement over ERM.
+4. **Group DRO:** Yielded FPR = 1.00 at 85% recall. Complete collapse.
+
