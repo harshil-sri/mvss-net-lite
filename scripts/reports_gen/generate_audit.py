@@ -236,3 +236,17 @@ master_results = [
         "source_file": "reports/baserate_experiment_run4.json",
         "source_line_or_artifact": "Base rate sweep {0, .25, .5, .75, 1.0}",
         "reproducible": True,
+        "notes": "Perfect monotonic correlation between base rate and authentic FPR."
+    },
+    {
+        "experiment_id": "EXP-01",
+        "metric": "Pearson r",
+        "value": 0.84,
+        "unit": "correlation",
+        "dataset": "RTM",
+        "model": "MVSS-Net-Lite",
+        "split": "Test",
+        "seed": 42,
+        "source_file": "paper1_plan.md",
+        "source_line_or_artifact": "r=0.84",
+        "reproducible": True,
