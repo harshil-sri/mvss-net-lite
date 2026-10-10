@@ -166,3 +166,17 @@ with open(os.path.join(out_dir, "10_CLAIM_EVIDENCE_MATRIX.md"), "w") as f:
 # 11_NOVELTY_AUDIT.md
 with open(os.path.join(out_dir, "11_NOVELTY_AUDIT.md"), "w") as f:
     f.write("""# Novelty Audit
+
+A. **Architectural novelty:** Low. Dual-branch ResNets with BayarConv and CBAM are well-established.
+B. **Diagnostic/analytical novelty:** **VERY HIGH.** Proving that cross-domain failure is largely a base-rate/prior shift masquerading as feature shift is a massive, highly defensible contribution.
+C. **Negative Result novelty:** **HIGH.** Demonstrating that DANN/Group-DRO fail on this specific causal confounder is valuable to the community.
+
+**Risk:** If the paper focuses on the architecture as the main contribution, reviewers will reject it for lack of novelty. The paper *must* pivot entirely around the analytical/diagnostic findings (the base-rate shortcut).
+""")
+
+# 12_FAILURES_AND_CONTRADICTIONS.md
+with open(os.path.join(out_dir, "12_FAILURES_AND_CONTRADICTIONS.md"), "w") as f:
+    f.write("""# Failures and Contradictions
+
+1. **The Decorrelation Fluke:** The initial run at Seed 42 showed a massive win for a feature decorrelation loss. Subsequent runs across different seeds completely eliminated this gain. The repository explicitly acknowledges this ("did NOT replicate"). The paper must not claim this works.
+2. **Group DRO Collapse:** Group DRO didn't just fail to improve ERM; it caused a catastrophic collapse (FPR = 1.00 at 85% recall).
