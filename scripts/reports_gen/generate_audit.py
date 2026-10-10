@@ -292,3 +292,17 @@ master_results = [
         "source_file": "paper1_plan.md",
         "source_line_or_artifact": "Group DRO FPR approx 1.00",
         "reproducible": True,
+        "notes": "Complete collapse under Group DRO."
+    },
+    {
+        "experiment_id": "EXP-02",
+        "metric": "Separability AUC",
+        "value": 0.80,
+        "unit": "AUC",
+        "dataset": "RTM",
+        "model": "MVSS-Net-Lite (Untrained)",
+        "split": "Test",
+        "seed": "Multiple",
+        "source_file": "paper1_plan.md",
+        "source_line_or_artifact": "Random initialization separability approx 80%",
+        "reproducible": True,
