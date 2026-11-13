@@ -1,0 +1,74 @@
+{
+  "config": {
+    "domains": [
+      "RTM",
+      "CASIAv2"
+    ],
+    "init": "run4",
+    "steps": 2000,
+    "seed": 7,
+    "pos_weight": 20.0,
+    "det_lambda": 1.0,
+    "target_recall": 0.85,
+    "readouts": [
+      "segmean",
+      "segtopk",
+      "dethead_mean",
+      "dethead_max"
+    ]
+  },
+  "per_domain": {
+    "RTM": {
+      "segmean": {
+        "auc": 0.8097,
+        "threshold": 0.0835,
+        "recall": 0.8389,
+        "auth_fp": 0.3611
+      },
+      "segtopk": {
+        "auc": 0.8119,
+        "threshold": 0.4745,
+        "recall": 0.7944,
+        "auth_fp": 0.3444
+      },
+      "dethead_mean": {
+        "auc": 0.8237,
+        "threshold": 0.5038,
+        "recall": 0.8889,
+        "auth_fp": 0.3889
+      },
+      "dethead_max": {
+        "auc": 0.816,
+        "threshold": 0.5197,
+        "recall": 0.8444,
+        "auth_fp": 0.4222
+      }
+    },
+    "CASIAv2": {
+      "segmean": {
+        "auc": 0.7881,
+        "threshold": 0.1458,
+        "recall": 0.8333,
+        "auth_fp": 0.3389
+      },
+      "segtopk": {
+        "auc": 0.8249,
+        "threshold": 0.5983,
+        "recall": 0.8556,
+        "auth_fp": 0.3611
+      },
+      "dethead_mean": {
+        "auc": 0.825,
+        "threshold": 0.3938,
+        "recall": 0.8111,
+        "auth_fp": 0.2833
+      },
+      "dethead_max": {
+        "auc": 0.8399,
+        "threshold": 0.4088,
+        "recall": 0.8444,
+        "auth_fp": 0.2722
+      }
+    }
+  }
+}

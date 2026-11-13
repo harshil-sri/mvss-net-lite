@@ -67,3 +67,26 @@ docs/papers_and_reports/
 *.zip
 *.tar.gz
 *.deb
+
+# src/ layout (added after the Oct 10 reorganisation)
+*.pt
+*.pth
+*.ckpt
+src/model/checkpoints/*
+!src/model/checkpoints/.gitkeep
+src/data_pipeline/raw/*
+!src/data_pipeline/raw/.gitkeep
+src/data_pipeline/processed/*
+!src/data_pipeline/processed/.gitkeep
+src/data_pipeline/probe_*/
+src/data_pipeline/test_debug/
+src/reports/logs/
+src/backend/app/static/uploads/*
+!src/backend/app/static/uploads/.gitkeep
+src/backend/app/static/generated/*
+!src/backend/app/static/generated/.gitkeep
+IVC_Submission/
+graph_output/
+graphify-out/
+docs/agent_instructions/
+.graphifyignore

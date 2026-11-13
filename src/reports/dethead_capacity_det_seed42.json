@@ -1,0 +1,62 @@
+{
+  "config": {
+    "mode": "det",
+    "domains": [
+      "RTM",
+      "CASIAv2"
+    ],
+    "init": "run4",
+    "steps": 2000,
+    "seed": 42,
+    "pos_weight": 20.0,
+    "det_lambda": 1.0,
+    "target_recall": 0.85,
+    "readouts": [
+      "segmean",
+      "dethead_mean",
+      "dethead_max"
+    ]
+  },
+  "per_domain": {
+    "RTM": {
+      "segmean": {
+        "auc": 0.7744,
+        "threshold": 0.0649,
+        "recall": 0.7667,
+        "auth_fp": 0.4222
+      },
+      "dethead_mean": {
+        "auc": 0.7847,
+        "threshold": 0.4709,
+        "recall": 0.8278,
+        "auth_fp": 0.4722
+      },
+      "dethead_max": {
+        "auc": 0.7698,
+        "threshold": 0.4581,
+        "recall": 0.7944,
+        "auth_fp": 0.4333
+      }
+    },
+    "CASIAv2": {
+      "segmean": {
+        "auc": 0.8157,
+        "threshold": 0.1657,
+        "recall": 0.8611,
+        "auth_fp": 0.4111
+      },
+      "dethead_mean": {
+        "auc": 0.848,
+        "threshold": 0.3594,
+        "recall": 0.8944,
+        "auth_fp": 0.2833
+      },
+      "dethead_max": {
+        "auc": 0.8586,
+        "threshold": 0.4193,
+        "recall": 0.8833,
+        "auth_fp": 0.2611
+      }
+    }
+  }
+}

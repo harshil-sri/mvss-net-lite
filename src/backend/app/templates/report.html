@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verification Report #{{ prediction.prediction_id }} — DocForge</title>
+
+<!-- Early Script to Prevent Theme Flash -->
+<script>
+  (function() {
+    const saved = localStorage.getItem('docforge-theme');
+    if (saved) {
+      document.documentElement.setAttribute('data-theme', saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  })();
+</script>
+
+<!-- Modern Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    /* Design Tokens - Cool Paper & Verification Signal Ink */
+    --paper: #FAFAF7;
+    --ink: #141311;
+    --ink-dim: #6B6860;
+    --signal: #E8432C;
+    --signal-hover: #D03721;
+    --signal-light: rgba(232, 67, 44, 0.08);
+    --verified: #1FAA59;
+    --verified-light: rgba(31, 170, 89, 0.08);
+    --void: #E8432C;
+    --surface: #FFFFFF;
+    --surface-subtle: #F4F3EF;
+    --line: #E7E3DA;
+    --line-dark: #141311;
+    --grid-line: rgba(20, 19, 17, 0.035);
+    --card-shadow: 6px 6px 0px #141311;
+
+    --status-color: var(--verified);
+    --status-bg: var(--verified-light);
+
+    --font-display: 'Bricolage Grotesque', -apple-system, sans-serif;
+    --font-sans: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'Space Mono', monospace;
+  }
+
+  /* Refined Ergonomic Dark Theme Tokens (Comfortable Slate Charcoal) */
+  [data-theme="dark"] {
+    --paper: #121316;
+    --ink: #E2E4E9;
+    --ink-dim: #959BA6;
+    --signal: #F05238;
+    --signal-hover: #D83F26;
+    --signal-light: rgba(240, 82, 56, 0.14);
+    --verified: #22C55E;
+    --verified-light: rgba(34, 197, 94, 0.14);
+    --void: #F05238;
+    --surface: #1B1D22;
+    --surface-subtle: #242730;
+    --line: #2E323D;
+    --line-dark: #3F4452;
+    --grid-line: rgba(226, 228, 233, 0.025);
+    --card-shadow: 6px 6px 0px #090A0C;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #121316;
+      --ink: #E2E4E9;
+      --ink-dim: #959BA6;
+      --signal: #F05238;
+      --signal-hover: #D83F26;
+      --signal-light: rgba(240, 82, 56, 0.14);
+      --verified: #22C55E;
+      --verified-light: rgba(34, 197, 94, 0.14);
+      --void: #F05238;
+      --surface: #1B1D22;
+      --surface-subtle: #242730;
+      --line: #2E323D;
+      --line-dark: #3F4452;
+      --grid-line: rgba(226, 228, 233, 0.025);
+      --card-shadow: 6px 6px 0px #090A0C;
+    }
+  }
+
+  body.forged-status {
+    --status-color: var(--void);
+    --status-bg: var(--signal-light);
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-size: 16px;
+    background-color: var(--paper);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    letter-spacing: -0.011em;
+    color: var(--ink);
+    background-color: var(--paper);
+    /* Dynamic Architectural Grid */
+    background-image: 
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 40px 40px;
+    overflow-x: hidden;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  /* Accessibility focus styles */
+  a:focus-visible, button:focus-visible, input:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 2px;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 2.5rem;
+    border-bottom: 1px solid var(--line);
+    background: rgba(250, 250, 247, 0.95);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+  }
+
+  [data-theme="dark"] header {
+    background: rgba(18, 19, 22, 0.95);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  .brand-stamp {
+    width: 32px;
+    height: 32px;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.1rem;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+  }
+
+  .brand:hover .brand-stamp {
+    background: var(--signal);
+    color: #FFFFFF;
+    transform: rotate(-3deg) scale(1.05);
+  }
+
+  .brand-title {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+
+  .status-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .id-label {
+    font-family: var(--font-mono);
+    color: var(--ink-dim);
+    font-size: 0.8rem;
+    background: var(--surface-subtle);
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+  }
+
+  /* Signature Redaction Wipe Entrance Badge */
+  .verdict-badge {
+    position: relative;
+    padding: 0.4rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: 2px solid var(--status-color);
+    background: var(--status-bg);
+    color: var(--status-color);
+    text-transform: uppercase;
+    border-radius: 4px;
+    letter-spacing: 0.06em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 2px 2px 0px var(--status-color);
+    overflow: hidden;
+  }
+
+  .verdict-badge::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--status-color);
+    transform-origin: left;
+    animation: wipeReveal 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes wipeReveal {
+    0% { transform: scaleX(1); }
+    100% { transform: scaleX(0); }
+  }
+
+  /* Theme Toggle Button */
+  .theme-toggle-btn {
+    background: var(--surface-subtle);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .theme-toggle-btn:hover {
+    background: var(--signal);
+    color: #FFFFFF;
+    border-color: var(--signal);
+  }
+
+  .sun-icon { display: block; }
+  .moon-icon { display: none; }
+
+  [data-theme="dark"] .sun-icon { display: none; }
+  [data-theme="dark"] .moon-icon { display: block; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .sun-icon { display: none; }
+    :root:not([data-theme="light"]) .moon-icon { display: block; }
+  }
+
+  /* Layout Grid */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    max-width: 1440px;
+    margin: 0 auto;
+    width: 100%;
+    align-items: start;
+    padding: 2.5rem;
+    gap: 2.5rem;
+  }
+
+  @media (max-width: 1100px) {
+    .layout {
+      grid-template-columns: 1fr;
+      padding: 1.5rem;
+    }
+    .sidebar {
+      position: static !important;
+      height: 650px !important;
+    }
+  }
+
+  /* Main Column Panels */
+  .main-column {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 2px solid var(--line-dark);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .section {
+    padding: 2rem;
+  }
+
+  .section-header {
+    margin-bottom: 1.5rem;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--ink);
+    padding-bottom: 0.75rem;
+    border-bottom: 2px dashed var(--line);
+  }
+
+  .section-header svg {
+    color: var(--signal);
+  }
+
+  /* Flexible Forensic Image Grid */
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .image-card {
+    background: var(--surface-subtle);
+    border: 1px solid var(--line-dark);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .image-label {
+    padding: 0.65rem 1rem;
+    font-size: 0.75rem;
+    color: var(--ink-dim);
+    border-bottom: 1px solid var(--line-dark);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    background: var(--paper);
+  }
+
+  .image-wrapper {
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-subtle);
+    flex: 1;
+  }
+
+  .image-wrapper img {
+    max-width: 100%;
+    max-height: 380px;
+    object-fit: contain;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Diagnostic Content Section */
+  .report-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .report-top {
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    gap: 1.75rem;
+    align-items: stretch;
+  }
+
+  @media (max-width: 768px) {
+    .report-top { grid-template-columns: 1fr; }
+  }
+
+  .report-text {
+    font-size: 0.98rem;
+    color: var(--ink);
+    line-height: 1.65;
+    background: var(--paper);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--line-dark);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .report-text p {
+    font-family: var(--font-sans);
+  }
+
+  .ring-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--paper);
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid var(--line-dark);
+  }
+
+  .circular-chart {
+    display: block;
+    margin: 0 auto;
+    max-width: 110px;
+    max-height: 110px;
+  }
+
+  .circle-bg {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 3.8;
+  }
+
+  .circle {
+    fill: none;
+    stroke-width: 3.8;
+    stroke-linecap: round;
+    transition: stroke-dasharray 1s ease-out;
+    stroke: var(--status-color);
+  }
+
+  .percentage {
+    fill: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.62em;
+    text-anchor: middle;
+    font-weight: 700;
+  }
+
+  .ring-label {
+    margin-top: 0.85rem;
+    font-family: var(--font-mono);
+    color: var(--ink-dim);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  /* Sidebar Assistant Chat Widget */
+  .sidebar {
+    position: sticky;
+    top: calc(73px + 2.5rem);
+    height: calc(100vh - 73px - 5rem);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-widget {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 2px solid var(--line-dark);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .chat-header {
+    padding: 1.1rem 1.25rem;
+    background: var(--paper);
+    border-bottom: 2px solid var(--line-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+
+  .chat-header svg {
+    color: var(--signal);
+  }
+
+  .chat-log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: var(--paper);
+  }
+
+  .msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 90%;
+  }
+
+  .msg.user { align-self: flex-end; }
+  .msg.ai { align-self: flex-start; }
+
+  .msg-bubble {
+    padding: 0.85rem 1.1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    font-family: var(--font-sans);
+  }
+
+  .msg.user .msg-bubble {
+    background: var(--line-dark);
+    color: var(--paper);
+    border-bottom-right-radius: 2px;
+    box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+  }
+
+  .msg.ai .msg-bubble {
+    background: var(--surface);
+    border: 1px solid var(--line-dark);
+    color: var(--ink);
+    border-bottom-left-radius: 2px;
+    box-shadow: 2px 2px 0px var(--card-shadow);
+  }
+
+  .chat-form {
+    display: flex;
+    padding: 0.85rem;
+    background: var(--surface-subtle);
+    border-top: 2px solid var(--line-dark);
+    gap: 0.5rem;
+  }
+
+  .chat-input {
+    flex: 1;
+    background: var(--paper);
+    border: 1px solid var(--line-dark);
+    padding: 0 1rem;
+    height: 44px;
+    border-radius: 6px;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    transition: border-color 0.2s ease;
+  }
+
+  .chat-input:focus {
+    outline: none;
+    border-color: var(--signal);
+    box-shadow: 0 0 0 2px var(--signal-light);
+  }
+
+  .chat-submit {
+    background: var(--signal);
+    color: #FFFFFF;
+    border: 1px solid var(--line-dark);
+    padding: 0 1.2rem;
+    height: 44px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+  }
+
+  .chat-submit:hover:not(:disabled) {
+    background: var(--signal-hover);
+    transform: translateY(-1px);
+  }
+
+  .chat-submit:disabled {
+    background: var(--line);
+    color: var(--ink-dim);
+    border-color: var(--line);
+    cursor: not-allowed;
+  }
+
+  .typing-indicator {
+    display: flex;
+    gap: 5px;
+    padding: 0.4rem;
+  }
+  
+  .typing-indicator span {
+    width: 6px;
+    height: 6px;
+    background: var(--signal);
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+  }
+  .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+  .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--paper); }
+  ::-webkit-scrollbar-thumb { background: var(--line-dark); border-radius: 3px; }
+
+  /* Reduced Motion Respect */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    .verdict-badge::after {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body class="{{ prediction.verdict|lower }}-status">
+
+  <!-- Header Navbar -->
+  <header>
+    <a href="/" class="brand" aria-label="DocForge Home">
+      <div class="brand-stamp">DF</div>
+      <span class="brand-title">DOCFORGE</span>
+    </a>
+    
+    <div class="status-header">
+      <span class="id-label">ID: {{ prediction.prediction_id }}</span>
+      <div class="verdict-badge">
+        {% if prediction.verdict|upper == 'AUTHENTIC' %}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        {% else %}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        {% endif %}
+        <span>{{ prediction.verdict|upper }}</span>
+      </div>
+
+      <!-- Theme Toggle Button -->
+      <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle light or dark theme">
+        <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Diagnostic Layout -->
+  <div class="layout">
+    
+    <!-- Left Main Column -->
+    <div class="main-column">
+
+      <!-- Panel 1: Image Inspection -->
+      <div class="panel section">
+        <h2 class="section-header">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          Document Forensic Inspection
+        </h2>
+        
+        <div class="image-grid">
+          <div class="image-card">
+            <div class="image-label">
+              <span>Original Upload</span>
+              <span>RAW</span>
+            </div>
+            <div class="image-wrapper">
+              <img src="{{ original_image_url }}" alt="Original Uploaded Document">
+            </div>
+          </div>
+          
+          <div class="image-card">
+            <div class="image-label">
+              <span>Forensic Manipulation Map</span>
+              <span>HEATMAP</span>
+            </div>
+            <div class="image-wrapper">
+              <img src="{{ overlay_image_url }}" alt="Forensic Overlay Image Output">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Diagnostic Analysis & Graphs -->
+      <div class="panel section">
+        <h2 class="section-header">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          Diagnostic Forensic Summary
+        </h2>
+
+        <div class="report-content">
+          <div class="report-top">
+            <div class="report-text" id="ai-summary-container">
+              <p>{{ ai_summary }}</p>
+            </div>
+            
+            <div class="ring-container">
+              <svg viewBox="0 0 36 36" class="circular-chart">
+                <path class="circle-bg"
+                  d="M18 2.0845
+                    a 15.9155 15.9155 0 0 1 0 31.831
+                    a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <path class="circle" id="confidence-ring"
+                  stroke-dasharray="0, 100"
+                  d="M18 2.0845
+                    a 15.9155 15.9155 0 0 1 0 31.831
+                    a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <text x="18" y="20.35" class="percentage" id="confidence-text" data-target="{{ (prediction.confidence * 100)|int }}">0%</text>
+              </svg>
+              <div class="ring-label">Confidence Score</div>
+            </div>
+          </div>
+
+          <!-- Forensic Graphs Loop -->
+          {% if chart_image_url or extra_graphs %}
+          <div class="image-grid" style="margin-top: 0.5rem;">
+            {% if chart_image_url %}
+              <div class="image-card">
+                <div class="image-label"><span>Analysis Graph</span></div>
+                <div class="image-wrapper">
+                  <img src="{{ chart_image_url }}" alt="Analysis Chart">
+                </div>
+              </div>
+            {% endif %}
+
+            {% if extra_graphs %}
+              {% for graph in extra_graphs %}
+              <div class="image-card">
+                <div class="image-label"><span>{{ graph.title }}</span></div>
+                <div class="image-wrapper">
+                  <img src="{{ graph.url }}" alt="{{ graph.title }}">
+                </div>
+              </div>
+              {% endfor %}
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+    
+    <!-- Right Sidebar Assistant -->
+    <div class="sidebar">
+      <div class="chat-widget">
+        <div class="chat-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+          Forensic AI Assistant
+        </div>
+
+        <div id="chat-log" class="chat-log" aria-live="polite">
+          <div class="msg ai">
+            <div class="msg-bubble">Analysis complete. Ready for queries regarding the forensic output.</div>
+          </div>
+        </div>
+
+        <form id="chat-form" class="chat-form">
+          <input type="text" id="chat-input" class="chat-input" placeholder="Ask about pixel anomalies..." autocomplete="off" required aria-label="Query data input">
+          <button type="submit" id="chat-submit" class="chat-submit" aria-label="Send Query">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
+        </form>
+      </div>
+    </div>
+      
+  </div>
+
+<script>
+  // Theme Toggle Handler
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', nextTheme);
+      localStorage.setItem('docforge-theme', nextTheme);
+    });
+  }
+
+  setTimeout(() => {
+    const textEl = document.getElementById('confidence-text');
+    const ringEl = document.getElementById('confidence-ring');
+    const target = parseInt(textEl.getAttribute('data-target') || '0', 10);
+    
+    ringEl.setAttribute('stroke-dasharray', `${target}, 100`);
+
+    const duration = 1000;
+    const frameRate = 30;
+    const totalFrames = duration / frameRate;
+    let currentFrame = 0;
+
+    function countUp() {
+      currentFrame++;
+      const progress = currentFrame / totalFrames;
+      const easeProgress = 1 - (1 - progress) * (1 - progress);
+      const currentVal = Math.round(target * easeProgress);
+      textEl.textContent = currentVal + '%';
+      
+      if (currentFrame < totalFrames) {
+        setTimeout(countUp, frameRate);
+      } else {
+        textEl.textContent = target + '%';
+      }
+    }
+    countUp();
+  }, 300);
+
+  const predictionId = "{{ prediction.prediction_id }}";
+  const log = document.getElementById("chat-log");
+  const form = document.getElementById("chat-form");
+  const input = document.getElementById("chat-input");
+  const submitBtn = document.getElementById("chat-submit");
+  let history = [];
+
+  function append(role, htmlContent) {
+    const div = document.createElement("div");
+    div.className = "msg " + role;
+    div.innerHTML = `<div class="msg-bubble">${htmlContent}</div>`;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function showThinking() {
+    const div = document.createElement("div");
+    div.className = "msg ai thinking-msg";
+    div.id = "thinking-indicator";
+    div.innerHTML = `
+      <div class="msg-bubble">
+        <div class="typing-indicator">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    `;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function hideThinking() {
+    const indicator = document.getElementById("thinking-indicator");
+    if (indicator) indicator.remove();
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const question = input.value.trim();
+    if (!question) return;
+
+    append("user", question);
+    input.value = "";
+    input.disabled = true;
+    submitBtn.disabled = true;
+    
+    showThinking();
+
+    try {
+      const res = await fetch(`/chat/${predictionId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question, history }),
+      });
+      const data = await res.json();
+      
+      hideThinking();
+      const answer = data.answer || "Error processing request.";
+      append("ai", answer);
+      
+      history.push({ role: "user", content: question });
+      history.push({ role: "assistant", content: answer });
+    } catch (err) {
+      hideThinking();
+      append("ai", "Connection failed.");
+    } finally {
+      input.disabled = false;
+      submitBtn.disabled = false;
+      input.focus();
+    }
+  });
+
+  // Fetch the summary asynchronously to avoid blocking the page load
+  async function fetchSummary() {
+    const summaryEl = document.querySelector('#ai-summary-container p');
+    try {
+      const res = await fetch(`/summary/${predictionId}`);
+      if (!res.ok) throw new Error("Failed to fetch");
+      const data = await res.json();
+      summaryEl.textContent = data.summary;
+    } catch (err) {
+      summaryEl.textContent = "AI summary generation failed or took too long.";
+    }
+  }
+  fetchSummary();
+</script>
+</body>
+</html>

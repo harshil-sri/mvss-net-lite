@@ -1,0 +1,64 @@
+{
+  "config": {
+    "domain": "RTM",
+    "init": "run4",
+    "n_train": 800,
+    "epochs": 4,
+    "lr": 0.0001,
+    "pos_weight_fixed": 100.0,
+    "base_rates": [
+      0.0,
+      0.25,
+      0.5,
+      0.75,
+      1.0
+    ],
+    "n_eval_auth": 309,
+    "n_eval_forged": 300,
+    "seed": 123,
+    "metric": "image-level seg fire@0.5"
+  },
+  "conditions": [
+    {
+      "base_rate": 0.0,
+      "n_forged": 0,
+      "n_auth": 800,
+      "auth_fp": 0.0,
+      "forged_recall": 0.0
+    },
+    {
+      "base_rate": 0.25,
+      "n_forged": 200,
+      "n_auth": 600,
+      "auth_fp": 0.5987,
+      "forged_recall": 0.98
+    },
+    {
+      "base_rate": 0.5,
+      "n_forged": 400,
+      "n_auth": 400,
+      "auth_fp": 0.7638,
+      "forged_recall": 1.0
+    },
+    {
+      "base_rate": 0.75,
+      "n_forged": 600,
+      "n_auth": 200,
+      "auth_fp": 0.7799,
+      "forged_recall": 1.0
+    },
+    {
+      "base_rate": 1.0,
+      "n_forged": 800,
+      "n_auth": 0,
+      "auth_fp": 0.7282,
+      "forged_recall": 0.9933
+    }
+  ],
+  "analysis": {
+    "pearson_r": 0.7876,
+    "spearman_rho": 0.7,
+    "spearman_p": 0.1881,
+    "monotone_increasing": false
+  }
+}
